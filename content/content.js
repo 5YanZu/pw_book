@@ -1335,6 +1335,51 @@ function setupDynamicDetection(loginListener) {
 }
 
 /**
+ * 安全的复制文本到剪贴板
+ * @param {string} text - 要复制的文本
+ * @returns {Promise<void>}
+ */
+async function copyTextToClipboard(text) {
+    // 方法1: 尝试使用Clipboard API（推荐）
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        try {
+            await navigator.clipboard.writeText(text);
+            return;
+        } catch (error) {
+            console.warn('Clipboard API失败，尝试fallback方法:', error);
+        }
+    }
+    
+    // 方法2: 使用传统的document.execCommand方法（fallback）
+    return new Promise((resolve, reject) => {
+        try {
+            // 创建临时textarea元素
+            const textarea = document.createElement('textarea');
+            textarea.value = text;
+            textarea.style.position = 'fixed';
+            textarea.style.left = '-999999px';
+            textarea.style.top = '-999999px';
+            document.body.appendChild(textarea);
+            
+            // 选中并复制
+            textarea.focus();
+            textarea.select();
+            
+            const successful = document.execCommand('copy');
+            document.body.removeChild(textarea);
+            
+            if (successful) {
+                resolve();
+            } else {
+                reject(new Error('execCommand复制失败'));
+            }
+        } catch (error) {
+            reject(error);
+        }
+    });
+}
+
+/**
  * 监听来自background script的消息
  */
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
@@ -1355,7 +1400,7 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
             
         case 'COPY_TEXT':
             // 复制文本到剪贴板
-            navigator.clipboard.writeText(request.text).then(() => {
+            copyTextToClipboard(request.text).then(() => {
                 sendResponse({ success: true });
             }).catch(error => {
                 sendResponse({ success: false, error: error.message });
