@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="128" height="128" viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#4299e1;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#2b6cb0;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- 背景 -->
+  <rect width="128" height="128" rx="20" ry="20" fill="url(#bgGrad)"/>
+  
+  <!-- 锁的主体 -->
+  <g transform="translate(64, 64)">
+    <!-- 锁扣 -->
+    <path d="M -16 -24 
+             A 16 16 0 0 1 16 -24
+             L 16 -4
+             L 12 -4
+             L 12 -24
+             A 12 12 0 0 0 -12 -24
+             L -12 -4
+             L -16 -4
+             Z" 
+          fill="none" 
+          stroke="#ffffff" 
+          stroke-width="4" 
+          stroke-linecap="round"/>
+    
+    <!-- 锁体 -->
+    <rect x="-20" y="-4" width="40" height="32" rx="6" ry="6" 
+          fill="#ffffff"/>
+    
+    <!-- 钥匙孔 -->
+    <circle cx="0" cy="8" r="4" fill="#4299e1"/>
+    <rect x="-2" y="8" width="4" height="8" fill="#4299e1"/>
+  </g>
+</svg> 

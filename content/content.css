@@ -1,0 +1,414 @@
+/**
+ * Content Script CSS - 页面注入的样式
+ * 定义自动填充组件、通知等UI元素的样式
+ */
+
+/* 自动填充组件样式 */
+.password-manager-widget {
+    position: fixed !important;
+    z-index: 999999 !important;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif !important;
+    font-size: 14px !important;
+    line-height: 1.4 !important;
+    background: #ffffff !important;
+    border: 1px solid #e1e4e8 !important;
+    border-radius: 8px !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15) !important;
+    max-width: 320px !important;
+    min-width: 280px !important;
+    color: #24292e !important;
+    overflow: hidden !important;
+    user-select: none !important;
+    -webkit-user-select: none !important;
+    -moz-user-select: none !important;
+    -ms-user-select: none !important;
+}
+
+.password-manager-widget * {
+    box-sizing: border-box !important;
+    margin: 0 !important;
+    padding: 0 !important;
+}
+
+/* 组件头部 */
+.pw-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+    color: #ffffff !important;
+    padding: 12px 16px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    font-weight: 600 !important;
+}
+
+.pw-title {
+    font-size: 14px !important;
+    flex: 1 !important;
+}
+
+.pw-close {
+    background: none !important;
+    border: none !important;
+    color: #ffffff !important;
+    font-size: 18px !important;
+    width: 24px !important;
+    height: 24px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    border-radius: 4px !important;
+    opacity: 0.8 !important;
+    transition: opacity 0.2s ease !important;
+}
+
+.pw-close:hover {
+    opacity: 1 !important;
+    background: rgba(255, 255, 255, 0.1) !important;
+}
+
+/* 账号列表 */
+.pw-accounts {
+    max-height: 240px !important;
+    overflow-y: auto !important;
+    padding: 8px 0 !important;
+}
+
+.pw-account-item {
+    display: flex !important;
+    align-items: center !important;
+    padding: 12px 16px !important;
+    cursor: pointer !important;
+    transition: background-color 0.2s ease !important;
+    border-bottom: 1px solid #f1f3f4 !important;
+}
+
+.pw-account-item:last-child {
+    border-bottom: none !important;
+}
+
+.pw-account-item:hover {
+    background-color: #f8f9fa !important;
+}
+
+.pw-account-info {
+    flex: 1 !important;
+    min-width: 0 !important;
+}
+
+.pw-username {
+    font-weight: 500 !important;
+    color: #24292e !important;
+    font-size: 14px !important;
+    margin-bottom: 4px !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+}
+
+.pw-source {
+    font-size: 12px !important;
+    color: #6a737d !important;
+    overflow: hidden !important;
+    text-overflow: ellipsis !important;
+    white-space: nowrap !important;
+}
+
+.pw-fill-btn {
+    background: linear-gradient(135deg, #28a745, #20c997) !important;
+    color: #ffffff !important;
+    border: none !important;
+    padding: 6px 12px !important;
+    border-radius: 6px !important;
+    font-size: 12px !important;
+    font-weight: 500 !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    min-width: 60px !important;
+    height: 32px !important;
+}
+
+.pw-fill-btn:hover {
+    background: linear-gradient(135deg, #218838, #1e9d86) !important;
+    transform: translateY(-1px) !important;
+    box-shadow: 0 4px 8px rgba(40, 167, 69, 0.3) !important;
+}
+
+.pw-fill-btn:active {
+    transform: translateY(0) !important;
+    box-shadow: 0 2px 4px rgba(40, 167, 69, 0.3) !important;
+}
+
+/* 滚动条样式 */
+.pw-accounts::-webkit-scrollbar {
+    width: 6px !important;
+}
+
+.pw-accounts::-webkit-scrollbar-track {
+    background: transparent !important;
+}
+
+.pw-accounts::-webkit-scrollbar-thumb {
+    background: #d1d5da !important;
+    border-radius: 3px !important;
+}
+
+.pw-accounts::-webkit-scrollbar-thumb:hover {
+    background: #c6cbd1 !important;
+}
+
+/* 临时存储通知样式 */
+.password-manager-temp-notification {
+    position: fixed !important;
+    top: 20px !important;
+    right: 20px !important;
+    z-index: 999998 !important;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif !important;
+    background: #ffffff !important;
+    border: 1px solid #e1e4e8 !important;
+    border-radius: 8px !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15) !important;
+    max-width: 320px !important;
+    min-width: 280px !important;
+    overflow: hidden !important;
+    animation: slideInFromRight 0.3s ease-out !important;
+}
+
+.temp-notification-content {
+    display: flex !important;
+    align-items: flex-start !important;
+    padding: 16px !important;
+    gap: 12px !important;
+}
+
+.temp-notification-icon {
+    font-size: 24px !important;
+    flex-shrink: 0 !important;
+    line-height: 1 !important;
+}
+
+.temp-notification-text {
+    flex: 1 !important;
+    min-width: 0 !important;
+}
+
+.temp-notification-title {
+    font-weight: 600 !important;
+    color: #24292e !important;
+    font-size: 14px !important;
+    margin-bottom: 4px !important;
+}
+
+.temp-notification-desc {
+    font-size: 13px !important;
+    color: #6a737d !important;
+    line-height: 1.4 !important;
+}
+
+.temp-notification-close {
+    background: none !important;
+    border: none !important;
+    color: #6a737d !important;
+    font-size: 18px !important;
+    width: 24px !important;
+    height: 24px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    cursor: pointer !important;
+    border-radius: 4px !important;
+    flex-shrink: 0 !important;
+    transition: all 0.2s ease !important;
+}
+
+.temp-notification-close:hover {
+    background: #f1f3f4 !important;
+    color: #24292e !important;
+}
+
+/* 通用通知样式 */
+.password-manager-notification {
+    position: fixed !important;
+    top: 20px !important;
+    right: 20px !important;
+    z-index: 999997 !important;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif !important;
+    padding: 12px 16px !important;
+    border-radius: 6px !important;
+    font-size: 14px !important;
+    font-weight: 500 !important;
+    max-width: 280px !important;
+    word-wrap: break-word !important;
+    animation: slideInFromRight 0.3s ease-out !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15) !important;
+}
+
+.password-manager-notification.success {
+    background: #d4edda !important;
+    color: #155724 !important;
+    border: 1px solid #c3e6cb !important;
+}
+
+.password-manager-notification.error {
+    background: #f8d7da !important;
+    color: #721c24 !important;
+    border: 1px solid #f5c6cb !important;
+}
+
+.password-manager-notification.info {
+    background: #d1ecf1 !important;
+    color: #0c5460 !important;
+    border: 1px solid #bee5eb !important;
+}
+
+/* 动画效果 */
+@keyframes slideInFromRight {
+    from {
+        transform: translateX(100%) !important;
+        opacity: 0 !important;
+    }
+    to {
+        transform: translateX(0) !important;
+        opacity: 1 !important;
+    }
+}
+
+@keyframes slideOutToRight {
+    from {
+        transform: translateX(0) !important;
+        opacity: 1 !important;
+    }
+    to {
+        transform: translateX(100%) !important;
+        opacity: 0 !important;
+    }
+}
+
+/* 响应式设计 */
+@media (max-width: 480px) {
+    .password-manager-widget,
+    .password-manager-temp-notification,
+    .password-manager-notification {
+        left: 10px !important;
+        right: 10px !important;
+        max-width: none !important;
+        min-width: auto !important;
+    }
+    
+    .password-manager-temp-notification {
+        top: 10px !important;
+    }
+    
+    .password-manager-notification {
+        top: 10px !important;
+    }
+}
+
+/* 高对比度模式适配 */
+@media (prefers-contrast: high) {
+    .password-manager-widget {
+        border: 2px solid #000000 !important;
+    }
+    
+    .pw-header {
+        background: #000000 !important;
+        color: #ffffff !important;
+    }
+    
+    .pw-fill-btn {
+        background: #000000 !important;
+        color: #ffffff !important;
+        border: 1px solid #ffffff !important;
+    }
+}
+
+/* 深色模式适配 */
+@media (prefers-color-scheme: dark) {
+    .password-manager-widget {
+        background: #1f2328 !important;
+        border-color: #30363d !important;
+        color: #e6edf3 !important;
+    }
+    
+    .pw-username {
+        color: #e6edf3 !important;
+    }
+    
+    .pw-source {
+        color: #8b949e !important;
+    }
+    
+    .pw-account-item:hover {
+        background-color: #262c36 !important;
+    }
+    
+    .pw-account-item {
+        border-bottom-color: #30363d !important;
+    }
+    
+    .password-manager-temp-notification {
+        background: #1f2328 !important;
+        border-color: #30363d !important;
+    }
+    
+    .temp-notification-title {
+        color: #e6edf3 !important;
+    }
+    
+    .temp-notification-desc {
+        color: #8b949e !important;
+    }
+    
+    .temp-notification-close {
+        color: #8b949e !important;
+    }
+    
+    .temp-notification-close:hover {
+        background: #30363d !important;
+        color: #e6edf3 !important;
+    }
+}
+
+/* 确保组件不受页面样式影响 */
+.password-manager-widget,
+.password-manager-widget *,
+.password-manager-temp-notification,
+.password-manager-temp-notification *,
+.password-manager-notification,
+.password-manager-notification * {
+    all: unset !important;
+}
+
+/* 重新应用必要的样式 */
+.password-manager-widget {
+    display: block !important;
+    position: fixed !important;
+    z-index: 999999 !important;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif !important;
+    font-size: 14px !important;
+    line-height: 1.4 !important;
+    background: #ffffff !important;
+    border: 1px solid #e1e4e8 !important;
+    border-radius: 8px !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15) !important;
+    max-width: 320px !important;
+    min-width: 280px !important;
+    color: #24292e !important;
+    overflow: hidden !important;
+}
+
+.password-manager-temp-notification {
+    display: block !important;
+    position: fixed !important;
+    top: 20px !important;
+    right: 20px !important;
+    z-index: 999998 !important;
+}
+
+.password-manager-notification {
+    display: block !important;
+    position: fixed !important;
+    top: 20px !important;
+    right: 20px !important;
+    z-index: 999997 !important;
+} 

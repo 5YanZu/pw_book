@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>复杂登录表单测试</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #805ad5 0%, #6b46c1 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .login-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .login-header {
+            background: linear-gradient(135deg, #805ad5 0%, #6b46c1 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .company-logo {
+            width: 60px;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .login-body {
+            padding: 40px;
+        }
+
+        .test-info {
+            background: #f7fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 25px;
+            font-size: 0.85rem;
+            color: #4a5568;
+        }
+
+        .auth-form {
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 15px 20px 15px 50px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: #f8fafc;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: #805ad5;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(128, 90, 213, 0.1);
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #a0aec0;
+            font-size: 18px;
+            pointer-events: none;
+        }
+
+        .complex-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .option-group {
+            display: flex;
+            align-items: center;
+            font-size: 0.9rem;
+            color: #4a5568;
+        }
+
+        .option-group input[type="checkbox"] {
+            margin-right: 8px;
+            transform: scale(1.1);
+        }
+
+        .auth-button {
+            width: 100%;
+            background: linear-gradient(135deg, #805ad5 0%, #6b46c1 100%);
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 15px rgba(128, 90, 213, 0.3);
+        }
+
+        .auth-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(128, 90, 213, 0.4);
+        }
+
+        .additional-fields {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .field-small {
+            padding: 12px 15px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+
+        .field-small:focus {
+            outline: none;
+            border-color: #805ad5;
+        }
+
+        .back-link {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .back-link a {
+            color: #805ad5;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .message {
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-size: 0.9rem;
+            display: none;
+        }
+
+        .message.success {
+            background: #c6f6d5;
+            color: #2f855a;
+            border: 1px solid #9ae6b4;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-header">
+            <div class="company-logo">🔗</div>
+            <h1>企业管理系统</h1>
+            <p>复杂登录表单测试</p>
+        </div>
+
+        <div class="login-body">
+            <div class="test-info">
+                <h3>🔍 测试要点：</h3>
+                <ul style="margin-left: 20px; font-size: 0.8rem;">
+                    <li>观察复杂CSS类名的表单检测</li>
+                    <li>测试多个字段中的正确识别</li>
+                    <li>检查干扰字段是否影响检测</li>
+                    <li>验证高级表单检测能力</li>
+                </ul>
+            </div>
+
+            <form class="auth-form" id="complexLoginForm" method="post">
+                <!-- 干扰字段 -->
+                <div class="additional-fields">
+                    <input type="text" class="field-small" placeholder="部门代码" name="department">
+                    <input type="text" class="field-small" placeholder="员工编号" name="employee_id">
+                </div>
+
+                <!-- 主要登录字段 -->
+                <div class="input-group">
+                    <span class="input-icon">👤</span>
+                    <input type="text" 
+                           class="input-field complex-username-field" 
+                           name="user_account" 
+                           id="userAccountInput"
+                           placeholder="用户名/工号/邮箱"
+                           autocomplete="username"
+                           required>
+                </div>
+
+                <div class="input-group">
+                    <span class="input-icon">🔒</span>
+                    <input type="password" 
+                           class="input-field secure-password-input" 
+                           name="user_password" 
+                           id="userPasswordInput"
+                           placeholder="登录密码"
+                           autocomplete="current-password"
+                           required>
+                </div>
+
+                <!-- 更多干扰字段 -->
+                <div class="additional-fields">
+                    <input type="text" class="field-small" placeholder="验证码" name="captcha">
+                    <select class="field-small" name="login_type">
+                        <option>普通登录</option>
+                        <option>管理员登录</option>
+                    </select>
+                </div>
+
+                <div class="complex-options">
+                    <div class="option-group">
+                        <input type="checkbox" id="rememberCredentials" name="remember_me">
+                        <label for="rememberCredentials">记住密码</label>
+                    </div>
+                    <div class="option-group">
+                        <input type="checkbox" id="autoLogin" name="auto_login">
+                        <label for="autoLogin">自动登录</label>
+                    </div>
+                </div>
+
+                <button type="submit" class="auth-button signin-btn">
+                    <span>🚀</span> 立即登录
+                </button>
+            </form>
+
+            <div id="message" class="message"></div>
+
+            <div class="back-link">
+                <a href="index.html">← 返回测试中心</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('complexLoginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('userAccountInput').value;
+            const password = document.getElementById('userPasswordInput').value;
+            const messageDiv = document.getElementById('message');
+            
+            if (username && password) {
+                messageDiv.className = 'message success';
+                messageDiv.textContent = `复杂表单登录成功！用户: ${username}`;
+                messageDiv.style.display = 'block';
+                
+                console.log('🔗 复杂登录表单提交:', {
+                    username: username,
+                    passwordLength: password.length,
+                    formType: 'complex',
+                    hasInterferenceFields: true,
+                    department: document.querySelector('[name="department"]').value,
+                    employeeId: document.querySelector('[name="employee_id"]').value
+                });
+            }
+            
+            setTimeout(() => {
+                messageDiv.style.display = 'none';
+            }, 3000);
+        });
+
+        console.log('🧪 复杂登录表单测试用例建议:');
+        console.log('1. 输入 manager/admin123 测试管理员账号');
+        console.log('2. 输入 emp001@company.com/password 测试邮箱登录');
+        console.log('3. 输入 developer/newpass123 测试密码更新');
+        console.log('4. 填写干扰字段，观察是否影响主要字段检测');
+    </script>
+</body>
+</html> 

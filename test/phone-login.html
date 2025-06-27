@@ -1,0 +1,344 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>手机号登录表单测试</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            width: 100%;
+            max-width: 420px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #2d3748;
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #718096;
+            font-size: 0.9rem;
+        }
+
+        .test-info {
+            background: #fef5e7;
+            border: 1px solid #f6ad55;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            font-size: 0.85rem;
+            color: #744210;
+        }
+
+        .test-info h3 {
+            color: #c05621;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #4a5568;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #ed8936;
+            box-shadow: 0 0 0 3px rgba(237, 137, 54, 0.1);
+        }
+
+        .phone-icon {
+            position: relative;
+        }
+
+        .phone-icon::before {
+            content: "📱";
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 16px;
+            pointer-events: none;
+        }
+
+        .phone-icon input {
+            padding-right: 45px;
+        }
+
+        .login-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #ed8936 0%, #dd6b20 100%);
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(237, 137, 54, 0.3);
+        }
+
+        .login-btn:disabled {
+            background: #cbd5e0;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .phone-validation {
+            font-size: 0.8rem;
+            margin-top: 5px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .phone-validation.show {
+            opacity: 1;
+        }
+
+        .phone-validation.valid {
+            color: #48bb78;
+        }
+
+        .phone-validation.invalid {
+            color: #f56565;
+        }
+
+        .back-link {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .back-link a {
+            color: #ed8936;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .message {
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-size: 0.9rem;
+            display: none;
+        }
+
+        .message.success {
+            background: #c6f6d5;
+            color: #2f855a;
+            border: 1px solid #9ae6b4;
+        }
+
+        .message.error {
+            background: #fed7d7;
+            color: #c53030;
+            border: 1px solid #feb2b2;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📱 手机号登录表单</h1>
+            <p>测试电话号码格式的识别</p>
+        </div>
+
+        <div class="test-info">
+            <h3>🔍 测试要点：</h3>
+            <ul style="margin-left: 20px;">
+                <li>观察tel类型字段的检测</li>
+                <li>测试手机号格式验证</li>
+                <li>检查暂存时是否正确识别手机号</li>
+                <li>尝试不同的手机号格式</li>
+            </ul>
+        </div>
+
+        <form id="phoneLoginForm" method="post">
+            <div class="form-group">
+                <label for="phone">手机号码</label>
+                <div class="phone-icon">
+                    <input type="tel" 
+                           id="phone" 
+                           name="phone" 
+                           placeholder="请输入手机号码"
+                           autocomplete="tel"
+                           maxlength="11"
+                           required>
+                </div>
+                <div id="phoneValidation" class="phone-validation"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="password">密码</label>
+                <input type="password" 
+                       id="password" 
+                       name="password" 
+                       placeholder="请输入密码"
+                       autocomplete="current-password"
+                       required>
+            </div>
+
+            <button type="submit" id="loginBtn" class="login-btn">登录</button>
+        </form>
+
+        <div id="message" class="message"></div>
+
+        <div class="back-link">
+            <a href="index.html">← 返回测试中心</a>
+        </div>
+    </div>
+
+    <script>
+        const phoneInput = document.getElementById('phone');
+        const passwordInput = document.getElementById('password');
+        const loginBtn = document.getElementById('loginBtn');
+        const phoneValidation = document.getElementById('phoneValidation');
+        const form = document.getElementById('phoneLoginForm');
+
+        // 手机号验证
+        phoneInput.addEventListener('input', function() {
+            const phone = this.value.replace(/\D/g, ''); // 只保留数字
+            this.value = phone; // 自动移除非数字字符
+            
+            const phoneRegex = /^1[3-9]\d{9}$/;
+            
+            if (phone === '') {
+                phoneValidation.classList.remove('show');
+                return;
+            }
+            
+            phoneValidation.classList.add('show');
+            
+            if (phoneRegex.test(phone)) {
+                phoneValidation.textContent = '✓ 手机号格式正确';
+                phoneValidation.className = 'phone-validation show valid';
+                this.style.borderColor = '#48bb78';
+            } else {
+                phoneValidation.textContent = '✗ 请输入正确的11位手机号';
+                phoneValidation.className = 'phone-validation show invalid';
+                this.style.borderColor = '#f56565';
+            }
+            
+            updateLoginButton();
+        });
+
+        passwordInput.addEventListener('input', updateLoginButton);
+
+        function updateLoginButton() {
+            const phone = phoneInput.value;
+            const password = passwordInput.value;
+            const phoneValid = /^1[3-9]\d{9}$/.test(phone);
+            
+            if (phoneValid && password.length >= 1) {
+                loginBtn.disabled = false;
+                loginBtn.textContent = '登录';
+            } else {
+                loginBtn.disabled = true;
+                loginBtn.textContent = '请完善登录信息';
+            }
+        }
+
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const phone = phoneInput.value;
+            const password = passwordInput.value;
+            const messageDiv = document.getElementById('message');
+            
+            const phoneRegex = /^1[3-9]\d{9}$/;
+            
+            if (!phoneRegex.test(phone)) {
+                messageDiv.className = 'message error';
+                messageDiv.textContent = '请输入正确的手机号格式！';
+                messageDiv.style.display = 'block';
+                return;
+            }
+            
+            if (phone && password) {
+                messageDiv.className = 'message success';
+                messageDiv.textContent = `手机号登录成功！手机号: ${phone}`;
+                messageDiv.style.display = 'block';
+                
+                console.log('📱 手机号登录表单提交:', {
+                    phone: phone,
+                    passwordLength: password.length,
+                    formType: 'phone',
+                    carrier: getCarrier(phone)
+                });
+            }
+            
+            setTimeout(() => {
+                messageDiv.style.display = 'none';
+            }, 3000);
+        });
+
+        function getCarrier(phone) {
+            const prefix = phone.substring(0, 3);
+            if (['134', '135', '136', '137', '138', '139', '147', '150', '151', '152', '157', '158', '159', '178', '182', '183', '184', '187', '188'].includes(prefix)) {
+                return '中国移动';
+            } else if (['130', '131', '132', '155', '156', '166', '175', '176', '185', '186'].includes(prefix)) {
+                return '中国联通';
+            } else if (['133', '149', '153', '173', '177', '180', '181', '189', '199'].includes(prefix)) {
+                return '中国电信';
+            }
+            return '未知运营商';
+        }
+
+        // 初始化按钮状态
+        updateLoginButton();
+
+        console.log('🧪 手机号登录表单测试用例建议:');
+        console.log('1. 输入 13800138000/123456 测试移动号码');
+        console.log('2. 输入 15500155000/password 测试联通号码');
+        console.log('3. 输入 18900189000/newpass 测试电信号码');
+        console.log('4. 尝试输入无效手机号测试验证');
+    </script>
+</body>
+</html> 

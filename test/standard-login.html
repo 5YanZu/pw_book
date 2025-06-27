@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>标准登录表单测试</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #2d3748;
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #718096;
+            font-size: 0.9rem;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #4a5568;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-group input:invalid {
+            border-color: #f56565;
+        }
+
+        .login-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .login-btn:active {
+            transform: translateY(0);
+        }
+
+        .options {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .options label {
+            display: flex;
+            align-items: center;
+            color: #718096;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+
+        .options input[type="checkbox"] {
+            margin-right: 8px;
+        }
+
+        .forgot-password {
+            color: #667eea;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .forgot-password:hover {
+            text-decoration: underline;
+        }
+
+        .back-link {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .back-link a {
+            color: #667eea;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .back-link a:hover {
+            text-decoration: underline;
+        }
+
+        .test-info {
+            background: #edf2f7;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            font-size: 0.85rem;
+            color: #4a5568;
+        }
+
+        .test-info h3 {
+            color: #2d3748;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        .message {
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-size: 0.9rem;
+            display: none;
+        }
+
+        .message.success {
+            background: #c6f6d5;
+            color: #2f855a;
+            border: 1px solid #9ae6b4;
+        }
+
+        .message.error {
+            background: #fed7d7;
+            color: #c53030;
+            border: 1px solid #feb2b2;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📝 标准登录表单</h1>
+            <p>测试基本的表单检测和暂存功能</p>
+        </div>
+
+        <div class="test-info">
+            <h3>🔍 测试要点：</h3>
+            <ul style="margin-left: 20px;">
+                <li>观察控制台表单检测日志</li>
+                <li>输入用户名密码后点击登录</li>
+                <li>检查暂存通知是否正确显示</li>
+                <li>尝试修改密码重新登录</li>
+            </ul>
+        </div>
+
+        <form id="standardLoginForm" method="post">
+            <div class="form-group">
+                <label for="username">用户名</label>
+                <input type="text" 
+                       id="username" 
+                       name="username" 
+                       placeholder="请输入用户名"
+                       autocomplete="username"
+                       required>
+            </div>
+
+            <div class="form-group">
+                <label for="password">密码</label>
+                <input type="password" 
+                       id="password" 
+                       name="password" 
+                       placeholder="请输入密码"
+                       autocomplete="current-password"
+                       required>
+            </div>
+
+            <div class="options">
+                <label>
+                    <input type="checkbox" name="remember"> 记住密码
+                </label>
+                <a href="#" class="forgot-password">忘记密码？</a>
+            </div>
+
+            <button type="submit" class="login-btn">登录</button>
+        </form>
+
+        <div id="message" class="message"></div>
+
+        <div class="back-link">
+            <a href="index.html">← 返回测试中心</a>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('standardLoginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+            const messageDiv = document.getElementById('message');
+            
+            if (username && password) {
+                messageDiv.className = 'message success';
+                messageDiv.textContent = `模拟登录成功！用户名: ${username}`;
+                messageDiv.style.display = 'block';
+                
+                console.log('📝 标准登录表单提交:', {
+                    username: username,
+                    passwordLength: password.length,
+                    formType: 'standard'
+                });
+            } else {
+                messageDiv.className = 'message error';
+                messageDiv.textContent = '请填写完整的登录信息！';
+                messageDiv.style.display = 'block';
+            }
+            
+            // 3秒后隐藏消息
+            setTimeout(() => {
+                messageDiv.style.display = 'none';
+            }, 3000);
+        });
+
+        // 测试用例建议
+        console.log('🧪 标准登录表单测试用例建议:');
+        console.log('1. 输入 admin/123456 测试基本暂存');
+        console.log('2. 输入 admin/newpass 测试密码更新');
+        console.log('3. 输入 user123/password 测试新用户暂存');
+    </script>
+</body>
+</html> 

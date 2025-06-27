@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>密码管理器调试页面</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .status-card {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .status-card h3 {
+            margin-top: 0;
+            color: #2c3e50;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid #ecf0f1;
+        }
+
+        .status-item:last-child {
+            border-bottom: none;
+        }
+
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+
+        .status-ok { background: #27ae60; }
+        .status-error { background: #e74c3c; }
+        .status-warning { background: #f39c12; }
+
+        .btn {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+            font-weight: 600;
+        }
+
+        .btn:hover {
+            background: linear-gradient(135deg, #2980b9, #1f5582);
+        }
+
+        .btn.danger {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+        }
+
+        .btn.success {
+            background: linear-gradient(135deg, #27ae60, #229954);
+        }
+
+        .log-area {
+            background: #2c3e50;
+            color: #ecf0f1;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            height: 200px;
+            overflow-y: auto;
+            margin-top: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🔧 密码管理器调试工具</h1>
+        <p>诊断和解决扩展问题</p>
+    </div>
+
+    <div class="grid">
+        <div class="status-card">
+            <h3>扩展状态检查</h3>
+            <div id="extensionStatus">
+                <div class="status-item">
+                    <div class="status-indicator status-warning" id="chromeIndicator"></div>
+                    <span>Chrome API 可用性</span>
+                </div>
+                <div class="status-item">
+                    <div class="status-indicator status-warning" id="runtimeIndicator"></div>
+                    <span>Runtime API</span>
+                </div>
+                <div class="status-item">
+                    <div class="status-indicator status-warning" id="storageIndicator"></div>
+                    <span>Storage API</span>
+                </div>
+                <div class="status-item">
+                    <div class="status-indicator status-warning" id="contextIndicator"></div>
+                    <span>扩展上下文</span>
+                </div>
+            </div>
+            <button class="btn" onclick="checkExtensionStatus()">重新检查</button>
+        </div>
+
+        <div class="status-card">
+            <h3>存储测试</h3>
+            <div class="form-group">
+                <label for="testKey">测试键名:</label>
+                <input type="text" id="testKey" value="debug_test" placeholder="输入测试键名">
+            </div>
+            <div class="form-group">
+                <label for="testValue">测试值:</label>
+                <input type="text" id="testValue" value="test_data" placeholder="输入测试值">
+            </div>
+            <button class="btn success" onclick="testStorage()">测试存储</button>
+            <button class="btn" onclick="readStorage()">读取存储</button>
+            <button class="btn danger" onclick="clearStorage()">清除存储</button>
+        </div>
+    </div>
+
+    <div class="status-card">
+        <h3>扩展通信测试</h3>
+        <button class="btn" onclick="testBackgroundCommunication()">测试后台通信</button>
+        <button class="btn" onclick="testContentScriptCommunication()">测试内容脚本通信</button>
+        <button class="btn" onclick="getActiveTabInfo()">获取当前标签页信息</button>
+    </div>
+
+    <div class="status-card">
+        <h3>快速修复</h3>
+        <button class="btn success" onclick="reloadExtension()">重新加载扩展</button>
+        <button class="btn" onclick="clearAllData()">清除所有数据</button>
+        <button class="btn" onclick="resetToDefaults()">重置到默认状态</button>
+    </div>
+
+    <div class="status-card">
+        <h3>调试日志</h3>
+        <button class="btn" onclick="clearLogs()">清除日志</button>
+        <div class="log-area" id="debugLogs">
+            等待日志信息...
+        </div>
+    </div>
+
+    <script>
+        let logs = [];
+
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = `[${timestamp}] ${type.toUpperCase()}: ${message}`;
+            logs.push(logEntry);
+            
+            console.log(logEntry);
+            updateLogDisplay();
+        }
+
+        function updateLogDisplay() {
+            const logArea = document.getElementById('debugLogs');
+            logArea.textContent = logs.slice(-50).join('\n');
+            logArea.scrollTop = logArea.scrollHeight;
+        }
+
+        function clearLogs() {
+            logs = [];
+            updateLogDisplay();
+        }
+
+        function setStatus(elementId, status) {
+            const element = document.getElementById(elementId);
+            element.className = `status-indicator status-${status}`;
+        }
+
+        function checkExtensionStatus() {
+            log('开始检查扩展状态...');
+            
+            // 检查Chrome API
+            if (typeof chrome !== 'undefined') {
+                setStatus('chromeIndicator', 'ok');
+                log('Chrome API 可用', 'success');
+            } else {
+                setStatus('chromeIndicator', 'error');
+                log('Chrome API 不可用', 'error');
+                return;
+            }
+
+            // 检查Runtime API
+            if (chrome.runtime) {
+                setStatus('runtimeIndicator', 'ok');
+                log('Runtime API 可用', 'success');
+                
+                if (chrome.runtime.lastError) {
+                    log(`Runtime 错误: ${chrome.runtime.lastError.message}`, 'error');
+                }
+                
+                if (chrome.runtime.id) {
+                    log(`扩展ID: ${chrome.runtime.id}`, 'info');
+                }
+            } else {
+                setStatus('runtimeIndicator', 'error');
+                log('Runtime API 不可用', 'error');
+            }
+
+            // 检查Storage API
+            if (chrome.storage) {
+                setStatus('storageIndicator', 'ok');
+                log('Storage API 可用', 'success');
+            } else {
+                setStatus('storageIndicator', 'error');
+                log('Storage API 不可用', 'error');
+            }
+
+            // 检查扩展上下文
+            try {
+                const contextValid = chrome.runtime && chrome.runtime.id && !chrome.runtime.lastError;
+                if (contextValid) {
+                    setStatus('contextIndicator', 'ok');
+                    log('扩展上下文有效', 'success');
+                } else {
+                    setStatus('contextIndicator', 'warning');
+                    log('扩展上下文可能无效', 'warning');
+                }
+            } catch (error) {
+                setStatus('contextIndicator', 'error');
+                log(`扩展上下文检查失败: ${error.message}`, 'error');
+            }
+        }
+
+        async function testStorage() {
+            const key = document.getElementById('testKey').value;
+            const value = document.getElementById('testValue').value;
+            
+            log(`测试存储: ${key} = ${value}`);
+            
+            try {
+                if (chrome.storage) {
+                    chrome.storage.local.set({ [key]: value }, () => {
+                        if (chrome.runtime.lastError) {
+                            log(`存储失败: ${chrome.runtime.lastError.message}`, 'error');
+                        } else {
+                            log('存储成功', 'success');
+                        }
+                    });
+                } else {
+                    localStorage.setItem(key, value);
+                    log('使用 localStorage 存储成功', 'warning');
+                }
+            } catch (error) {
+                log(`存储异常: ${error.message}`, 'error');
+            }
+        }
+
+        async function readStorage() {
+            const key = document.getElementById('testKey').value;
+            
+            log(`读取存储: ${key}`);
+            
+            try {
+                if (chrome.storage) {
+                    chrome.storage.local.get([key], (result) => {
+                        if (chrome.runtime.lastError) {
+                            log(`读取失败: ${chrome.runtime.lastError.message}`, 'error');
+                        } else {
+                            log(`读取成功: ${JSON.stringify(result)}`, 'success');
+                        }
+                    });
+                } else {
+                    const value = localStorage.getItem(key);
+                    log(`从 localStorage 读取: ${value}`, 'warning');
+                }
+            } catch (error) {
+                log(`读取异常: ${error.message}`, 'error');
+            }
+        }
+
+        async function clearStorage() {
+            const key = document.getElementById('testKey').value;
+            
+            log(`清除存储: ${key}`);
+            
+            try {
+                if (chrome.storage) {
+                    chrome.storage.local.remove([key], () => {
+                        if (chrome.runtime.lastError) {
+                            log(`清除失败: ${chrome.runtime.lastError.message}`, 'error');
+                        } else {
+                            log('清除成功', 'success');
+                        }
+                    });
+                } else {
+                    localStorage.removeItem(key);
+                    log('从 localStorage 清除成功', 'warning');
+                }
+            } catch (error) {
+                log(`清除异常: ${error.message}`, 'error');
+            }
+        }
+
+        function testBackgroundCommunication() {
+            log('测试后台脚本通信...');
+            
+            try {
+                chrome.runtime.sendMessage({ type: 'DEBUG_TEST', data: 'Hello from debug page' }, (response) => {
+                    if (chrome.runtime.lastError) {
+                        log(`后台通信失败: ${chrome.runtime.lastError.message}`, 'error');
+                    } else {
+                        log(`后台通信成功: ${JSON.stringify(response)}`, 'success');
+                    }
+                });
+            } catch (error) {
+                log(`后台通信异常: ${error.message}`, 'error');
+            }
+        }
+
+        function testContentScriptCommunication() {
+            log('测试内容脚本通信...');
+            
+            try {
+                chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
+                    if (tabs[0]) {
+                        chrome.tabs.sendMessage(tabs[0].id, { type: 'DEBUG_TEST', data: 'Hello from debug page' }, (response) => {
+                            if (chrome.runtime.lastError) {
+                                log(`内容脚本通信失败: ${chrome.runtime.lastError.message}`, 'error');
+                            } else {
+                                log(`内容脚本通信成功: ${JSON.stringify(response)}`, 'success');
+                            }
+                        });
+                    }
+                });
+            } catch (error) {
+                log(`内容脚本通信异常: ${error.message}`, 'error');
+            }
+        }
+
+        function getActiveTabInfo() {
+            log('获取当前标签页信息...');
+            
+            try {
+                chrome.runtime.sendMessage({ type: 'GET_ACTIVE_TAB_INFO' }, (response) => {
+                    if (chrome.runtime.lastError) {
+                        log(`获取标签页信息失败: ${chrome.runtime.lastError.message}`, 'error');
+                    } else {
+                        log(`标签页信息: ${JSON.stringify(response, null, 2)}`, 'success');
+                    }
+                });
+            } catch (error) {
+                log(`获取标签页信息异常: ${error.message}`, 'error');
+            }
+        }
+
+        function reloadExtension() {
+            log('尝试重新加载扩展...');
+            alert('请手动前往 chrome://extensions/ 页面，找到密码管理器扩展，点击刷新按钮');
+        }
+
+        function clearAllData() {
+            log('清除所有扩展数据...');
+            
+            if (confirm('确定要清除所有密码管理器数据吗？这个操作不可撤销！')) {
+                try {
+                    if (chrome.storage) {
+                        chrome.storage.local.clear(() => {
+                            if (chrome.runtime.lastError) {
+                                log(`清除失败: ${chrome.runtime.lastError.message}`, 'error');
+                            } else {
+                                log('所有数据已清除', 'success');
+                            }
+                        });
+                    } else {
+                        localStorage.clear();
+                        log('localStorage 已清除', 'warning');
+                    }
+                } catch (error) {
+                    log(`清除异常: ${error.message}`, 'error');
+                }
+            }
+        }
+
+        function resetToDefaults() {
+            log('重置到默认状态...');
+            
+            if (confirm('确定要重置所有设置到默认状态吗？')) {
+                clearAllData();
+                log('已重置到默认状态', 'success');
+            }
+        }
+
+        // 页面加载时自动检查状态
+        document.addEventListener('DOMContentLoaded', () => {
+            log('调试页面已加载');
+            checkExtensionStatus();
+        });
+
+        // 监听来自扩展的消息
+        if (typeof chrome !== 'undefined' && chrome.runtime) {
+            chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
+                log(`收到消息: ${JSON.stringify(request)}`, 'info');
+                sendResponse({ status: 'ok', message: 'Debug page received message' });
+            });
+        }
+    </script>
+</body>
+</html>

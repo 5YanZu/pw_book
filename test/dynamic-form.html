@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>动态加载表单测试</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #2d3748;
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+        }
+
+        .test-info {
+            background: #ebf8ff;
+            border: 1px solid #90cdf4;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 25px;
+            font-size: 0.85rem;
+            color: #2c5282;
+        }
+
+        .control-panel {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .control-btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .load-btn {
+            background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
+            color: white;
+        }
+
+        .clear-btn {
+            background: #e2e8f0;
+            color: #4a5568;
+        }
+
+        .dynamic-form-container {
+            min-height: 200px;
+            border: 2px dashed #e2e8f0;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #a0aec0;
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 16px;
+        }
+
+        .dynamic-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%);
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>⚡ 动态加载表单</h1>
+            <p>测试动态检测功能</p>
+        </div>
+
+        <div class="test-info">
+            <h3>🔍 测试要点：</h3>
+            <ul style="margin-left: 20px;">
+                <li>观察MutationObserver的动态检测</li>
+                <li>测试延迟加载表单的识别</li>
+                <li>检查DOM变化后的重新检测</li>
+            </ul>
+        </div>
+
+        <div class="control-panel">
+            <button class="control-btn load-btn" onclick="loadDynamicForm()">
+                📥 加载登录表单
+            </button>
+            <button class="control-btn clear-btn" onclick="clearForm()">
+                🗑️ 清除表单
+            </button>
+        </div>
+
+        <div class="dynamic-form-container" id="formContainer">
+            <div>点击上方按钮加载动态表单</div>
+        </div>
+
+        <div style="text-align: center; margin-top: 20px;">
+            <a href="index.html" style="color: #4299e1;">← 返回测试中心</a>
+        </div>
+    </div>
+
+    <script>
+        let formCounter = 0;
+
+        function loadDynamicForm() {
+            const container = document.getElementById('formContainer');
+            formCounter++;
+            
+            setTimeout(() => {
+                container.innerHTML = `
+                    <form class="dynamic-form" id="dynamicForm${formCounter}" method="post" style="width: 100%;">
+                        <div class="form-group">
+                            <input type="text" name="dynamic_username" placeholder="动态用户名" required>
+                        </div>
+                        <div class="form-group">
+                            <input type="password" name="dynamic_password" placeholder="动态密码" required>
+                        </div>
+                        <button type="submit" class="dynamic-btn">🚀 动态登录</button>
+                    </form>
+                `;
+                
+                const form = document.getElementById(`dynamicForm${formCounter}`);
+                form.addEventListener('submit', function(e) {
+                    e.preventDefault();
+                    console.log('⚡ 动态表单提交:', { formType: 'dynamic', formNumber: formCounter });
+                });
+                
+                console.log(`✅ 动态表单 #${formCounter} 加载完成`);
+            }, 1000);
+        }
+
+        function clearForm() {
+            const container = document.getElementById('formContainer');
+            container.innerHTML = '<div>点击上方按钮加载动态表单</div>';
+            console.log('🗑️ 清除动态表单');
+        }
+
+        console.log('🧪 动态表单测试用例：点击"加载登录表单"观察动态检测');
+    </script>
+</body>
+</html> 

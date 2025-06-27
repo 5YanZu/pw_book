@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>邮箱登录表单测试</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #38b2ac 0%, #319795 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            width: 100%;
+            max-width: 420px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #2d3748;
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #718096;
+            font-size: 0.9rem;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #4a5568;
+            font-weight: 500;
+            margin-bottom: 8px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #38b2ac;
+            box-shadow: 0 0 0 3px rgba(56, 178, 172, 0.1);
+        }
+
+        .form-group input:invalid {
+            border-color: #f56565;
+        }
+
+        .form-group input:valid {
+            border-color: #48bb78;
+        }
+
+        .email-icon {
+            position: relative;
+        }
+
+        .email-icon::before {
+            content: "📧";
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 16px;
+            pointer-events: none;
+        }
+
+        .email-icon input {
+            padding-right: 45px;
+        }
+
+        .login-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #38b2ac 0%, #319795 100%);
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(56, 178, 172, 0.3);
+        }
+
+        .login-btn:active {
+            transform: translateY(0);
+        }
+
+        .login-btn:disabled {
+            background: #cbd5e0;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .options {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .options label {
+            display: flex;
+            align-items: center;
+            color: #718096;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+
+        .options input[type="checkbox"] {
+            margin-right: 8px;
+        }
+
+        .forgot-password {
+            color: #38b2ac;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .forgot-password:hover {
+            text-decoration: underline;
+        }
+
+        .back-link {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .back-link a {
+            color: #38b2ac;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .back-link a:hover {
+            text-decoration: underline;
+        }
+
+        .test-info {
+            background: #e6fffa;
+            border: 1px solid #81e6d9;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            font-size: 0.85rem;
+            color: #234e52;
+        }
+
+        .test-info h3 {
+            color: #2c7a7b;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        .email-validation {
+            font-size: 0.8rem;
+            margin-top: 5px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .email-validation.show {
+            opacity: 1;
+        }
+
+        .email-validation.valid {
+            color: #48bb78;
+        }
+
+        .email-validation.invalid {
+            color: #f56565;
+        }
+
+        .message {
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin-top: 15px;
+            font-size: 0.9rem;
+            display: none;
+        }
+
+        .message.success {
+            background: #c6f6d5;
+            color: #2f855a;
+            border: 1px solid #9ae6b4;
+        }
+
+        .message.error {
+            background: #fed7d7;
+            color: #c53030;
+            border: 1px solid #feb2b2;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📧 邮箱登录表单</h1>
+            <p>测试邮箱格式的识别和处理</p>
+        </div>
+
+        <div class="test-info">
+            <h3>🔍 测试要点：</h3>
+            <ul style="margin-left: 20px;">
+                <li>观察邮箱类型字段的检测</li>
+                <li>测试邮箱格式验证功能</li>
+                <li>检查暂存时是否正确识别邮箱</li>
+                <li>尝试不同的邮箱格式</li>
+            </ul>
+        </div>
+
+        <form id="emailLoginForm" method="post">
+            <div class="form-group">
+                <label for="email">邮箱地址</label>
+                <div class="email-icon">
+                    <input type="email" 
+                           id="email" 
+                           name="email" 
+                           placeholder="请输入邮箱地址"
+                           autocomplete="email"
+                           required>
+                </div>
+                <div id="emailValidation" class="email-validation"></div>
+            </div>
+
+            <div class="form-group">
+                <label for="password">密码</label>
+                <input type="password" 
+                       id="password" 
+                       name="password" 
+                       placeholder="请输入密码"
+                       autocomplete="current-password"
+                       required>
+            </div>
+
+            <div class="options">
+                <label>
+                    <input type="checkbox" name="remember"> 记住登录状态
+                </label>
+                <a href="#" class="forgot-password">忘记密码？</a>
+            </div>
+
+            <button type="submit" id="loginBtn" class="login-btn">登录</button>
+        </form>
+
+        <div id="message" class="message"></div>
+
+        <div class="back-link">
+            <a href="index.html">← 返回测试中心</a>
+        </div>
+    </div>
+
+    <script>
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const loginBtn = document.getElementById('loginBtn');
+        const emailValidation = document.getElementById('emailValidation');
+        const form = document.getElementById('emailLoginForm');
+
+        // 邮箱验证
+        emailInput.addEventListener('input', function() {
+            const email = this.value;
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            
+            if (email === '') {
+                emailValidation.classList.remove('show');
+                return;
+            }
+            
+            emailValidation.classList.add('show');
+            
+            if (emailRegex.test(email)) {
+                emailValidation.textContent = '✓ 邮箱格式正确';
+                emailValidation.className = 'email-validation show valid';
+                this.style.borderColor = '#48bb78';
+            } else {
+                emailValidation.textContent = '✗ 请输入正确的邮箱格式';
+                emailValidation.className = 'email-validation show invalid';
+                this.style.borderColor = '#f56565';
+            }
+            
+            updateLoginButton();
+        });
+
+        // 密码输入
+        passwordInput.addEventListener('input', updateLoginButton);
+
+        function updateLoginButton() {
+            const email = emailInput.value;
+            const password = passwordInput.value;
+            const emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+            
+            if (emailValid && password.length >= 1) {
+                loginBtn.disabled = false;
+                loginBtn.textContent = '登录';
+            } else {
+                loginBtn.disabled = true;
+                loginBtn.textContent = '请完善登录信息';
+            }
+        }
+
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const email = emailInput.value;
+            const password = passwordInput.value;
+            const messageDiv = document.getElementById('message');
+            
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            
+            if (!emailRegex.test(email)) {
+                messageDiv.className = 'message error';
+                messageDiv.textContent = '请输入正确的邮箱格式！';
+                messageDiv.style.display = 'block';
+                return;
+            }
+            
+            if (email && password) {
+                messageDiv.className = 'message success';
+                messageDiv.textContent = `邮箱登录成功！邮箱: ${email}`;
+                messageDiv.style.display = 'block';
+                
+                console.log('📧 邮箱登录表单提交:', {
+                    email: email,
+                    passwordLength: password.length,
+                    formType: 'email',
+                    emailDomain: email.split('@')[1]
+                });
+            }
+            
+            // 3秒后隐藏消息
+            setTimeout(() => {
+                messageDiv.style.display = 'none';
+            }, 3000);
+        });
+
+        // 初始化按钮状态
+        updateLoginButton();
+
+        // 测试用例建议
+        console.log('🧪 邮箱登录表单测试用例建议:');
+        console.log('1. 输入 admin@example.com/123456 测试基本邮箱暂存');
+        console.log('2. 输入 user@gmail.com/password123 测试不同邮箱域名');
+        console.log('3. 输入 test@outlook.com/newpass 测试密码更新');
+        console.log('4. 尝试输入无效邮箱格式测试验证');
+    </script>
+</body>
+</html> 

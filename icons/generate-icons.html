@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>图标生成器</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f7fafc;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 12px;
+            padding: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            color: #2d3748;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .preview-area {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        
+        .icon-preview {
+            text-align: center;
+            padding: 20px;
+            border: 2px dashed #e2e8f0;
+            border-radius: 8px;
+            background: #f8f9fa;
+        }
+        
+        .icon-preview h3 {
+            margin: 10px 0 5px 0;
+            color: #4a5568;
+            font-size: 14px;
+        }
+        
+        .icon-preview canvas {
+            background: white;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+        
+        .controls {
+            text-align: center;
+            margin: 30px 0;
+        }
+        
+        button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin: 0 10px;
+            transition: transform 0.2s ease;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        .download-links {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 30px;
+        }
+        
+        .download-link {
+            display: block;
+            background: #e6fffa;
+            border: 2px solid #38b2ac;
+            color: #234e52;
+            text-decoration: none;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+        
+        .download-link:hover {
+            background: #38b2ac;
+            color: white;
+            transform: translateY(-2px);
+        }
+        
+        .instructions {
+            background: #fffbeb;
+            border: 1px solid #f59e0b;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 30px;
+        }
+        
+        .instructions h3 {
+            color: #92400e;
+            margin-top: 0;
+        }
+        
+        .instructions ol {
+            color: #78350f;
+        }
+        
+        .svg-display {
+            background: #f8f9fa;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔐 密码管理器图标生成器</h1>
+        
+        <div class="svg-display">
+            <h3>预览图标</h3>
+            <svg id="iconSvg" width="128" height="128" viewBox="0 0 128 128" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" style="stop-color:#4299e1;stop-opacity:1" />
+                        <stop offset="100%" style="stop-color:#2b6cb0;stop-opacity:1" />
+                    </linearGradient>
+                </defs>
+                
+                <!-- 背景 -->
+                <rect width="128" height="128" rx="20" ry="20" fill="url(#bgGrad)"/>
+                
+                <!-- 锁的主体 -->
+                <g transform="translate(64, 64)">
+                    <!-- 锁扣 -->
+                    <path d="M -16 -24 
+                             A 16 16 0 0 1 16 -24
+                             L 16 -4
+                             L 12 -4
+                             L 12 -24
+                             A 12 12 0 0 0 -12 -24
+                             L -12 -4
+                             L -16 -4
+                             Z" 
+                          fill="none" 
+                          stroke="#ffffff" 
+                          stroke-width="4" 
+                          stroke-linecap="round"/>
+                    
+                    <!-- 锁体 -->
+                    <rect x="-20" y="-4" width="40" height="32" rx="6" ry="6" 
+                          fill="#ffffff"/>
+                    
+                    <!-- 钥匙孔 -->
+                    <circle cx="0" cy="8" r="4" fill="#4299e1"/>
+                    <rect x="-2" y="8" width="4" height="8" fill="#4299e1"/>
+                </g>
+            </svg>
+        </div>
+        
+        <div class="controls">
+            <button onclick="generateIcons()">生成所有图标</button>
+            <button onclick="downloadZip()">打包下载</button>
+        </div>
+        
+        <div class="preview-area">
+            <div class="icon-preview">
+                <h3>16×16 像素</h3>
+                <canvas id="canvas16" width="16" height="16"></canvas>
+            </div>
+            <div class="icon-preview">
+                <h3>32×32 像素</h3>
+                <canvas id="canvas32" width="32" height="32"></canvas>
+            </div>
+            <div class="icon-preview">
+                <h3>48×48 像素</h3>
+                <canvas id="canvas48" width="48" height="48"></canvas>
+            </div>
+            <div class="icon-preview">
+                <h3>128×128 像素</h3>
+                <canvas id="canvas128" width="128" height="128"></canvas>
+            </div>
+        </div>
+        
+        <div class="download-links" id="downloadLinks"></div>
+        
+        <div class="instructions">
+            <h3>使用说明</h3>
+            <ol>
+                <li>点击"生成所有图标"按钮</li>
+                <li>等待所有尺寸的图标生成完成</li>
+                <li>点击各个下载链接保存PNG文件</li>
+                <li>将文件重命名为：icon16.png, icon32.png, icon48.png, icon128.png</li>
+                <li>将文件放入插件的icons目录中</li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        const sizes = [16, 32, 48, 128];
+        let generatedIcons = {};
+
+        function generateIcons() {
+            const svg = document.getElementById('iconSvg');
+            const svgData = new XMLSerializer().serializeToString(svg);
+            const svgBlob = new Blob([svgData], {type: 'image/svg+xml;charset=utf-8'});
+            const svgUrl = URL.createObjectURL(svgBlob);
+            
+            sizes.forEach(size => {
+                generateIcon(size, svgUrl);
+            });
+        }
+
+        function generateIcon(size, svgUrl) {
+            const canvas = document.getElementById(`canvas${size}`);
+            const ctx = canvas.getContext('2d');
+            const img = new Image();
+            
+            img.onload = function() {
+                ctx.clearRect(0, 0, size, size);
+                ctx.drawImage(img, 0, 0, size, size);
+                
+                canvas.toBlob(function(blob) {
+                    generatedIcons[size] = blob;
+                    createDownloadLink(size, blob);
+                });
+                
+                URL.revokeObjectURL(svgUrl);
+            };
+            
+            img.src = svgUrl;
+        }
+
+        function createDownloadLink(size, blob) {
+            const url = URL.createObjectURL(blob);
+            const container = document.getElementById('downloadLinks');
+            
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `icon${size}.png`;
+            link.className = 'download-link';
+            link.textContent = `下载 ${size}×${size} 图标`;
+            
+            // 移除已存在的相同尺寸链接
+            const existing = container.querySelector(`[download="icon${size}.png"]`);
+            if (existing) {
+                existing.remove();
+            }
+            
+            container.appendChild(link);
+        }
+
+        function downloadZip() {
+            if (Object.keys(generatedIcons).length < 4) {
+                alert('请先生成所有图标');
+                return;
+            }
+            
+            // 简单提示，实际项目中可以使用JSZip库
+            alert('建议手动下载各个图标文件。如需批量下载，可以使用JSZip库实现。');
+        }
+
+        // 页面加载时自动生成图标
+        window.addEventListener('load', function() {
+            setTimeout(generateIcons, 500);
+        });
+    </script>
+</body>
+</html>

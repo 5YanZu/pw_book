@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>密码管理器扩展测试中心</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            width: 100%;
+            max-width: 800px;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .test-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        .test-card {
+            border: 2px solid #e2e8f0;
+            border-radius: 15px;
+            padding: 25px;
+            transition: all 0.3s ease;
+            background: #f8fafc;
+        }
+
+        .test-card:hover {
+            border-color: #667eea;
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.1);
+        }
+
+        .test-card h3 {
+            color: #2d3748;
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .test-card .icon {
+            font-size: 1.5rem;
+        }
+
+        .test-card p {
+            color: #4a5568;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .test-card .features {
+            list-style: none;
+            margin-bottom: 20px;
+        }
+
+        .test-card .features li {
+            color: #718096;
+            font-size: 0.9rem;
+            margin-bottom: 5px;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .test-card .features li::before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #48bb78;
+            font-weight: bold;
+        }
+
+        .btn {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            text-decoration: none;
+            padding: 12px 25px;
+            border-radius: 10px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .info-section {
+            background: #edf2f7;
+            border-radius: 15px;
+            padding: 30px;
+            margin-top: 30px;
+        }
+
+        .info-section h2 {
+            color: #2d3748;
+            margin-bottom: 15px;
+            font-size: 1.4rem;
+        }
+
+        .info-section ul {
+            color: #4a5568;
+            line-height: 1.8;
+        }
+
+        .info-section ul li {
+            margin-bottom: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔐 密码管理器测试中心</h1>
+            <p>选择不同的表单类型进行功能测试</p>
+        </div>
+
+        <div class="content">
+            <div class="test-grid">
+                <div class="test-card">
+                    <h3><span class="icon">📝</span>标准登录表单</h3>
+                    <p>最常见的用户名密码登录表单，测试基本的表单检测和暂存功能。</p>
+                    <ul class="features">
+                        <li>用户名 + 密码输入框</li>
+                        <li>标准提交按钮</li>
+                        <li>表单验证</li>
+                    </ul>
+                    <a href="standard-login.html" class="btn">开始测试</a>
+                </div>
+
+                <div class="test-card">
+                    <h3><span class="icon">📧</span>邮箱登录表单</h3>
+                    <p>使用邮箱作为用户名的登录表单，测试邮箱格式的识别和处理。</p>
+                    <ul class="features">
+                        <li>邮箱输入框 (type="email")</li>
+                        <li>密码输入框</li>
+                        <li>邮箱格式验证</li>
+                    </ul>
+                    <a href="email-login.html" class="btn">开始测试</a>
+                </div>
+
+                <div class="test-card">
+                    <h3><span class="icon">📱</span>手机号登录表单</h3>
+                    <p>使用手机号作为用户名的登录表单，测试电话号码格式的识别。</p>
+                    <ul class="features">
+                        <li>手机号输入框 (type="tel")</li>
+                        <li>密码输入框</li>
+                        <li>手机号格式验证</li>
+                    </ul>
+                    <a href="phone-login.html" class="btn">开始测试</a>
+                </div>
+
+                <div class="test-card">
+                    <h3><span class="icon">🔗</span>复杂登录表单</h3>
+                    <p>包含多个字段和复杂布局的登录表单，测试高级表单检测能力。</p>
+                    <ul class="features">
+                        <li>多个输入字段</li>
+                        <li>复杂CSS类名</li>
+                        <li>记住密码选项</li>
+                    </ul>
+                    <a href="complex-login.html" class="btn">开始测试</a>
+                </div>
+
+                <div class="test-card">
+                    <h3><span class="icon">👤</span>用户注册表单</h3>
+                    <p>用户注册表单，包含密码确认字段，测试注册场景的处理。</p>
+                    <ul class="features">
+                        <li>用户名、邮箱输入</li>
+                        <li>密码 + 确认密码</li>
+                        <li>注册协议</li>
+                    </ul>
+                    <a href="register-form.html" class="btn">开始测试</a>
+                </div>
+
+                <div class="test-card">
+                    <h3><span class="icon">⚡</span>动态加载表单</h3>
+                    <p>通过JavaScript动态生成的表单，测试动态检测功能。</p>
+                    <ul class="features">
+                        <li>延迟加载表单</li>
+                        <li>AJAX提交</li>
+                        <li>DOM变化检测</li>
+                    </ul>
+                    <a href="dynamic-form.html" class="btn">开始测试</a>
+                </div>
+            </div>
+
+            <div class="info-section">
+                <h2>📋 测试说明</h2>
+                <ul>
+                    <li><strong>表单检测</strong>：观察控制台是否正确识别表单类型和字段</li>
+                    <li><strong>暂存功能</strong>：输入用户名密码后提交，检查是否正确暂存</li>
+                    <li><strong>智能更新</strong>：修改密码重新提交，观察更新逻辑</li>
+                    <li><strong>通知提示</strong>：检查不同情况下的通知内容是否准确</li>
+                    <li><strong>填充功能</strong>：测试自动填充已保存的账号信息</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</body>
+</html> 

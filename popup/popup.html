@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>密码管理器</title>
+    <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+    <div class="popup-container">
+        <!-- 标题栏 -->
+        <header class="popup-header">
+            <div class="header-content">
+                <div class="header-icon">🔐</div>
+                <h1 class="header-title">密码管理器</h1>
+                <button class="settings-btn" id="settingsBtn" title="设置">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="3"></circle>
+                        <path d="M12 1v6m0 6v6m11-7h-6m-6 0H1"></path>
+                    </svg>
+                </button>
+            </div>
+            <div class="current-site" id="currentSite">
+                <span class="site-icon">🌐</span>
+                <span class="site-name" id="siteName">加载中...</span>
+            </div>
+        </header>
+
+        <!-- 暂存提示区 -->
+        <div class="temp-section" id="tempSection" style="display: none;">
+            <div class="temp-alert">
+                <div class="temp-icon">⚡</div>
+                <div class="temp-content">
+                    <div class="temp-title">检测到新的登录信息</div>
+                    <div class="temp-details" id="tempDetails"></div>
+                </div>
+                <div class="temp-actions">
+                    <button class="btn-save" id="btnSave">保存</button>
+                    <button class="btn-ignore" id="btnIgnore">忽略</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 主内容区 -->
+        <main class="main-content">
+            <!-- 账号列表区 -->
+            <div class="accounts-section">
+                <div class="section-header">
+                    <h2 class="section-title">
+                        <span>当前网站账号</span>
+                        <span class="account-count" id="accountCount">0</span>
+                    </h2>
+                    <button class="add-account-btn" id="addAccountBtn" title="手动添加账号">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                    </button>
+                </div>
+                
+                <!-- 账号列表 -->
+                <div class="accounts-list" id="accountsList">
+                    <!-- 账号项将通过JavaScript动态生成 -->
+                </div>
+                
+                <!-- 空状态 -->
+                <div class="empty-state" id="emptyState">
+                    <div class="empty-icon">🔒</div>
+                    <div class="empty-title">暂无保存的账号</div>
+                    <div class="empty-desc">在此网站登录时，系统会自动检测并提示保存账号信息</div>
+                </div>
+            </div>
+
+            <!-- 快捷操作区 -->
+            <div class="quick-actions">
+                <button class="quick-btn" id="showFillOptionsBtn" title="显示自动填充" style="display: none;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 12l2 2 4-4"></path>
+                        <path d="M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9c2.39 0 4.56.94 6.16 2.46"></path>
+                    </svg>
+                    <span>自动填充</span>
+                </button>
+                
+                <button class="quick-btn" id="generatePasswordBtn" title="生成随机密码">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                        <circle cx="12" cy="16" r="1"></circle>
+                        <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                    </svg>
+                    <span>生成密码</span>
+                </button>
+                
+                <button class="quick-btn" id="exportBtn" title="导出数据">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                        <polyline points="7,10 12,15 17,10"></polyline>
+                        <line x1="12" y1="15" x2="12" y2="3"></line>
+                    </svg>
+                    <span>导出</span>
+                </button>
+                
+                <button class="quick-btn" id="settingsBtn2" title="设置">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="3"></circle>
+                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1 1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+                    </svg>
+                    <span>设置</span>
+                </button>
+            </div>
+        </main>
+    </div>
+
+    <!-- 账号详情模态框 -->
+    <div class="modal-overlay" id="accountModal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="modalTitle">账号详情</h3>
+                <button class="modal-close" id="modalClose">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="modalUsername">用户名</label>
+                    <div class="input-with-action">
+                        <input type="text" id="modalUsername" readonly>
+                        <button class="copy-btn" data-copy="username" title="复制用户名">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="modalPassword">密码</label>
+                    <div class="input-with-action">
+                        <input type="password" id="modalPassword" readonly>
+                        <button class="toggle-password" id="togglePassword" title="显示/隐藏密码">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                <circle cx="12" cy="12" r="3"></circle>
+                            </svg>
+                        </button>
+                        <button class="copy-btn" data-copy="password" title="复制密码">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="modalSource">来源</label>
+                    <input type="text" id="modalSource" readonly>
+                </div>
+                
+                <div class="form-group">
+                    <label for="modalCreateTime">创建时间</label>
+                    <input type="text" id="modalCreateTime" readonly>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-fill" id="modalFillBtn">填充到页面</button>
+                <button class="btn-edit" id="modalEditBtn">编辑</button>
+                <button class="btn-delete" id="modalDeleteBtn">删除</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 添加账号模态框 -->
+    <div class="modal-overlay" id="addAccountModal" style="display: none;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">添加账号</h3>
+                <button class="modal-close" id="addModalClose">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="addUsername">用户名 *</label>
+                    <input type="text" id="addUsername" placeholder="请输入用户名或邮箱">
+                </div>
+                
+                <div class="form-group">
+                    <label for="addPassword">密码 *</label>
+                    <div class="input-with-action">
+                        <input type="password" id="addPassword" placeholder="请输入密码">
+                        <button class="toggle-password" id="addTogglePassword" title="显示/隐藏密码">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+                                <circle cx="12" cy="12" r="3"></circle>
+                            </svg>
+                        </button>
+                        <button class="generate-password" id="generatePasswordInModal" title="生成随机密码">
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                                <path d="M8 7.5l8 0A1.5 1.5 0 0 1 17.5 9l0 6A1.5 1.5 0 0 1 16 16.5l-8 0A1.5 1.5 0 0 1 6.5 15l0-6A1.5 1.5 0 0 1 8 7.5z"></path>
+                                <path d="M12 11l0 2"></path>
+                                <path d="M9 11l0 2"></path>
+                                <path d="M15 11l0 2"></path>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-cancel" id="addModalCancel">取消</button>
+                <button class="btn-save" id="addModalSave">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast 通知 -->
+    <div class="toast" id="toast" style="display: none;">
+        <div class="toast-content">
+            <span class="toast-icon" id="toastIcon">✓</span>
+            <span class="toast-message" id="toastMessage">操作成功</span>
+        </div>
+    </div>
+
+    <!-- 引入工具类和主脚本 -->
+    <script src="../utils/crypto.js"></script>
+    <script src="../utils/storage.js"></script>
+    <script src="../utils/domain.js"></script>
+    <script src="popup.js"></script>
+</body>
+</html> 
