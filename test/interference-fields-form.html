@@ -1,0 +1,544 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>干扰字段表单测试</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+            padding: 40px;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #1f2937;
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header p {
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+
+        .test-info {
+            background: #fef3c7;
+            border: 1px solid #fde68a;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 25px;
+            font-size: 0.85rem;
+            color: #92400e;
+        }
+
+        .test-info h3 {
+            color: #d97706;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        .complex-form {
+            background: #f9fafb;
+            border: 2px solid #e5e7eb;
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 20px;
+        }
+
+        .form-title {
+            background: #f59e0b;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: inline-block;
+            margin-bottom: 25px;
+        }
+
+        .form-section {
+            margin-bottom: 25px;
+            padding: 20px;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            background: white;
+        }
+
+        .section-title {
+            color: #374151;
+            font-weight: 600;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+            border-bottom: 1px solid #e5e7eb;
+            padding-bottom: 8px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .form-row.single {
+            grid-template-columns: 1fr;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #374151;
+            font-weight: 500;
+            margin-bottom: 6px;
+            font-size: 0.85rem;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #f59e0b;
+            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.1);
+        }
+
+        .form-control.main-field {
+            border: 2px solid #f59e0b;
+            background: #fffbeb;
+            font-weight: 500;
+        }
+
+        .form-control.main-field:focus {
+            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2);
+        }
+
+        .hidden-field {
+            display: none;
+        }
+
+        .invisible-field {
+            position: absolute;
+            left: -9999px;
+            opacity: 0;
+        }
+
+        .submit-btn {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+            color: white;
+            border: none;
+            padding: 14px 24px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(245, 158, 11, 0.3);
+        }
+
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+
+        .field-indicator {
+            display: inline-block;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            font-weight: 500;
+            margin-left: 8px;
+        }
+
+        .main-indicator {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .interference-indicator {
+            background: #fee2e2;
+            color: #dc2626;
+        }
+
+        .hidden-indicator {
+            background: #e5e7eb;
+            color: #6b7280;
+        }
+
+        .back-link {
+            text-align: center;
+            margin-top: 25px;
+        }
+
+        .back-link a {
+            color: #f59e0b;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .back-link a:hover {
+            text-decoration: underline;
+        }
+
+        .detection-challenge {
+            background: #fef2f2;
+            border: 1px solid #fecaca;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+            font-size: 0.8rem;
+            color: #dc2626;
+        }
+
+        .field-count {
+            text-align: center;
+            margin-top: 15px;
+            padding: 10px;
+            background: #f3f4f6;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            color: #4b5563;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🎯 干扰字段表单测试</h1>
+            <p>测试在复杂表单中正确识别主要登录字段的能力</p>
+        </div>
+
+        <div class="test-info">
+            <h3>🔍 测试要点：</h3>
+            <ul style="margin-left: 20px;">
+                <li>在大量干扰字段中识别主要登录字段</li>
+                <li>正确过滤隐藏字段和不相关字段</li>
+                <li>识别真正的用户名和密码字段</li>
+                <li>忽略搜索框、验证码等干扰元素</li>
+                <li>正确识别提交按钮</li>
+            </ul>
+        </div>
+
+        <form class="complex-form" method="post" action="/complex-login">
+            <div class="form-title">🎭 复杂业务表单</div>
+            
+            <!-- 隐藏字段区域 -->
+            <input type="hidden" name="csrf_token" value="abc123456789">
+            <input type="hidden" name="return_url" value="/dashboard">
+            <input type="hidden" name="session_id" value="sess_xyz789">
+            <input type="hidden" name="form_version" value="2.1.3">
+            <input type="hidden" name="timestamp" value="1640995200">
+
+            <!-- 不可见字段 -->
+            <input type="text" name="honeypot" value="" class="invisible-field">
+            <input type="text" name="bot_trap" value="" class="invisible-field">
+
+            <!-- 搜索和导航区域 -->
+            <div class="form-section">
+                <div class="section-title">搜索和导航 <span class="field-indicator interference-indicator">干扰字段</span></div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>全站搜索</label>
+                        <input type="text" name="global_search" placeholder="搜索商品、用户、订单..." class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label>快速导航</label>
+                        <input type="text" name="quick_nav" placeholder="输入页面名称..." class="form-control">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 用户偏好设置 -->
+            <div class="form-section">
+                <div class="section-title">用户偏好 <span class="field-indicator interference-indicator">干扰字段</span></div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>语言设置</label>
+                        <select name="language" class="form-control">
+                            <option>简体中文</option>
+                            <option>English</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>主题颜色</label>
+                        <input type="text" name="theme_color" placeholder="选择主题颜色" class="form-control">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>个人简介</label>
+                    <input type="text" name="user_bio" placeholder="介绍一下自己..." class="form-control">
+                </div>
+            </div>
+
+            <!-- 主要登录区域 -->
+            <div class="form-section">
+                <div class="section-title">账号登录 <span class="field-indicator main-indicator">主要字段</span></div>
+                <div class="form-row single">
+                    <div class="form-group">
+                        <label>登录账号 *</label>
+                        <input type="text" 
+                               name="user_login_account" 
+                               placeholder="请输入用户名、邮箱或手机号"
+                               class="form-control main-field"
+                               required
+                               autocomplete="username">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>登录密码 *</label>
+                        <input type="password" 
+                               name="user_login_password" 
+                               placeholder="请输入登录密码"
+                               class="form-control main-field"
+                               required
+                               autocomplete="current-password">
+                    </div>
+                    <div class="form-group">
+                        <label>验证码</label>
+                        <input type="text" 
+                               name="captcha_code" 
+                               placeholder="验证码"
+                               class="form-control"
+                               maxlength="6">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 其他业务字段 -->
+            <div class="form-section">
+                <div class="section-title">其他信息 <span class="field-indicator interference-indicator">干扰字段</span></div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>公司名称</label>
+                        <input type="text" name="company_name" placeholder="所在公司" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label>部门</label>
+                        <input type="text" name="department" placeholder="所在部门" class="form-control">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>联系电话</label>
+                        <input type="tel" name="contact_phone" placeholder="联系电话" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label>邮政编码</label>
+                        <input type="text" name="postal_code" placeholder="邮政编码" class="form-control">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 营销和统计字段 -->
+            <div class="form-section">
+                <div class="section-title">营销统计 <span class="field-indicator interference-indicator">干扰字段</span></div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>推荐人</label>
+                        <input type="text" name="referrer" placeholder="推荐人用户名" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label>优惠码</label>
+                        <input type="text" name="promo_code" placeholder="优惠码" class="form-control">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 隐藏的测试字段 -->
+            <input type="text" name="test_field_1" value="" style="display: none;">
+            <input type="password" name="test_password" value="" style="display: none;">
+            <input type="email" name="test_email" value="" style="display: none;">
+
+            <!-- 不相关的密码字段 -->
+            <div style="display: none;">
+                <input type="password" name="confirm_password" placeholder="确认密码">
+                <input type="password" name="old_password" placeholder="旧密码">
+                <input type="password" name="new_password" placeholder="新密码">
+            </div>
+
+            <!-- 提交按钮 -->
+            <button type="submit" class="submit-btn" data-action="complex-login">
+                🔐 안전한 로그인 (安全登录)
+            </button>
+
+            <!-- 字段统计 -->
+            <div class="field-count">
+                📊 表单统计: 总字段数 <strong id="total-fields">0</strong> | 
+                可见字段 <strong id="visible-fields">0</strong> | 
+                隐藏字段 <strong id="hidden-fields">0</strong>
+            </div>
+        </form>
+
+        <div class="detection-challenge">
+            <strong>🎯 检测挑战：</strong>
+            <p style="margin-top: 8px;">
+                此表单包含大量干扰字段，检测器需要正确识别出主要的登录字段：
+                <code>user_login_account</code> (用户名) 和 
+                <code>user_login_password</code> (密码)，
+                并忽略所有干扰元素。
+            </p>
+        </div>
+
+        <div class="back-link">
+            <a href="index.html">← 返回测试首页</a>
+        </div>
+    </div>
+
+    <script>
+        // 统计表单字段
+        function countFormFields() {
+            const allInputs = document.querySelectorAll('input, select, textarea');
+            const visibleInputs = Array.from(allInputs).filter(input => {
+                const style = window.getComputedStyle(input);
+                return style.display !== 'none' && 
+                       style.visibility !== 'hidden' && 
+                       style.opacity !== '0' &&
+                       !input.classList.contains('invisible-field');
+            });
+            const hiddenInputs = allInputs.length - visibleInputs.length;
+            
+            document.getElementById('total-fields').textContent = allInputs.length;
+            document.getElementById('visible-fields').textContent = visibleInputs.length;
+            document.getElementById('hidden-fields').textContent = hiddenInputs;
+        }
+
+        // 表单验证
+        function validateMainFields() {
+            const username = document.querySelector('input[name="user_login_account"]').value;
+            const password = document.querySelector('input[name="user_login_password"]').value;
+            const submitBtn = document.querySelector('.submit-btn');
+            
+            const isValid = username.length >= 3 && password.length >= 6;
+            submitBtn.disabled = !isValid;
+            submitBtn.style.opacity = isValid ? '1' : '0.6';
+            
+            if (isValid) {
+                submitBtn.textContent = '🔐 안전한 로그인 (安全登录)';
+            } else {
+                submitBtn.textContent = '请完善主要登录信息';
+            }
+        }
+
+        // 页面加载完成后的初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('🔍 干扰字段表单页面加载完成');
+            console.log('📊 预期检测结果:');
+            console.log('  - 应该检测到complex-form表单');
+            console.log('  - 应该识别user_login_account为主要用户名字段');
+            console.log('  - 应该识别user_login_password为主要密码字段');
+            console.log('  - 应该忽略所有隐藏字段和干扰字段');
+            console.log('  - 应该忽略搜索框、验证码等非登录字段');
+            console.log('  - 应该识别安全登录按钮');
+            
+            // 统计字段
+            countFormFields();
+            
+            // 绑定主要字段的输入事件
+            const mainFields = document.querySelectorAll('.main-field');
+            mainFields.forEach(field => {
+                field.addEventListener('input', validateMainFields);
+            });
+            
+            // 初始验证
+            validateMainFields();
+            
+            // 表单提交处理
+            document.querySelector('.complex-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                
+                const formData = new FormData(e.target);
+                const username = formData.get('user_login_account');
+                const password = formData.get('user_login_password');
+                const captcha = formData.get('captcha_code');
+                
+                if (!username || !password) {
+                    alert('请填写主要登录信息');
+                    return;
+                }
+                
+                if (username.length < 3) {
+                    alert('用户名至少需要3个字符');
+                    return;
+                }
+                
+                if (password.length < 6) {
+                    alert('密码至少需要6个字符');
+                    return;
+                }
+                
+                console.log('复杂表单登录:', {
+                    username,
+                    password: '*'.repeat(password.length),
+                    captcha: captcha || '未填写',
+                    totalFields: document.querySelectorAll('input, select, textarea').length,
+                    mainFields: 2
+                });
+                
+                alert(`复杂表单登录成功!\n主账号: ${username}\n主密码: ${'*'.repeat(password.length)}\n验证码: ${captcha || '未填写'}\n\n✅ 成功过滤了 ${document.querySelectorAll('input, select, textarea').length - 2} 个干扰字段!`);
+            });
+            
+            // 高亮主要字段
+            setTimeout(() => {
+                const mainFields = document.querySelectorAll('.main-field');
+                mainFields.forEach(field => {
+                    field.style.animation = 'pulse 2s infinite';
+                });
+            }, 2000);
+        });
+
+        // 添加脉冲动画
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes pulse {
+                0% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.7); }
+                70% { box-shadow: 0 0 0 10px rgba(245, 158, 11, 0); }
+                100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
+            }
+        `;
+        document.head.appendChild(style);
+    </script>
+</body>
+</html> 

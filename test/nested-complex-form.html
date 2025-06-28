@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>复杂嵌套表单测试</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+            padding: 40px;
+            width: 100%;
+            max-width: 650px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #1f2937;
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header p {
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+
+        .test-info {
+            background: #fdf4ff;
+            border: 1px solid #e9d5ff;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 25px;
+            font-size: 0.85rem;
+            color: #7c3aed;
+        }
+
+        .test-info h3 {
+            color: #8b5cf6;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        /* 嵌套容器样式 */
+        .main-container {
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+
+        .container-title {
+            background: #8b5cf6;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+
+        .nested-level-1 {
+            background: white;
+            border: 1px solid #d1d5db;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+        }
+
+        .nested-level-2 {
+            background: #f9fafb;
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 12px;
+        }
+
+        .nested-level-3 {
+            background: #f3f4f6;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 10px;
+        }
+
+        .level-indicator {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: #6b7280;
+            margin-bottom: 10px;
+            padding: 4px 8px;
+            background: #e5e7eb;
+            border-radius: 12px;
+            display: inline-block;
+        }
+
+        .level-1 { border-left: 4px solid #3b82f6; }
+        .level-2 { border-left: 4px solid #10b981; }
+        .level-3 { border-left: 4px solid #f59e0b; }
+        .login-area { border-left: 4px solid #ef4444; background: #fef2f2; }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #374151;
+            font-weight: 500;
+            margin-bottom: 6px;
+            font-size: 0.85rem;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #8b5cf6;
+            box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+        }
+
+        .login-field {
+            border: 2px solid #ef4444;
+            background: #fef2f2;
+            font-weight: 500;
+        }
+
+        .login-field:focus {
+            border-color: #dc2626;
+            box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+
+        .form-row.single {
+            grid-template-columns: 1fr;
+        }
+
+        .submit-btn {
+            background: linear-gradient(135deg, #8b5cf6 0%, #ec4899 100%);
+            color: white;
+            border: none;
+            padding: 14px 24px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(139, 92, 246, 0.3);
+        }
+
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+
+        .submit-btn:disabled {
+            background: #d1d5db;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .floating-login {
+            position: relative;
+            background: white;
+            border: 3px solid #ef4444;
+            border-radius: 16px;
+            padding: 20px;
+            margin: 20px 0;
+            box-shadow: 0 10px 25px rgba(239, 68, 68, 0.2);
+        }
+
+        .floating-login::before {
+            content: "🎯 主要登录区域";
+            position: absolute;
+            top: -12px;
+            left: 20px;
+            background: #ef4444;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+
+        .back-link {
+            text-align: center;
+            margin-top: 25px;
+        }
+
+        .back-link a {
+            color: #8b5cf6;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .back-link a:hover {
+            text-decoration: underline;
+        }
+
+        .nesting-info {
+            background: #f0f9ff;
+            border: 1px solid #bae6fd;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+            font-size: 0.8rem;
+            color: #0c4a6e;
+        }
+
+        .tab-container {
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+
+        .tab-header {
+            display: flex;
+            background: #f3f4f6;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 10px 16px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            font-size: 0.8rem;
+            border-right: 1px solid #d1d5db;
+        }
+
+        .tab-btn:last-child {
+            border-right: none;
+        }
+
+        .tab-btn.active {
+            background: white;
+            color: #8b5cf6;
+            font-weight: 600;
+        }
+
+        .tab-content {
+            padding: 15px;
+            background: white;
+        }
+
+        .tab-pane {
+            display: none;
+        }
+
+        .tab-pane.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🏗️ 复杂嵌套表单测试</h1>
+            <p>测试在多层嵌套结构中准确识别登录字段</p>
+        </div>
+
+        <div class="test-info">
+            <h3>🔍 测试要点：</h3>
+            <ul style="margin-left: 20px;">
+                <li>多层嵌套容器中的字段识别</li>
+                <li>Tab页面中的表单检测</li>
+                <li>浮动登录区域识别</li>
+                <li>复杂DOM结构中的最佳容器选择</li>
+                <li>嵌套表单的边界判断</li>
+            </ul>
+        </div>
+
+        <div class="main-container">
+            <div class="container-title">🏢 企业管理系统</div>
+            
+            <!-- 第一层嵌套：系统配置 -->
+            <div class="nested-level-1 level-1">
+                <div class="level-indicator">Level 1: 系统配置</div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>系统名称</label>
+                        <input type="text" name="system_name" value="企业管理系统" class="form-control" readonly>
+                    </div>
+                    <div class="form-group">
+                        <label>版本号</label>
+                        <input type="text" name="version" value="v2.1.3" class="form-control" readonly>
+                    </div>
+                </div>
+
+                <!-- 第二层嵌套：用户管理 -->
+                <div class="nested-level-2 level-2">
+                    <div class="level-indicator">Level 2: 用户管理</div>
+                    
+                    <!-- Tab容器 -->
+                    <div class="tab-container">
+                        <div class="tab-header">
+                            <button class="tab-btn active" onclick="switchTab('user-info')">用户信息</button>
+                            <button class="tab-btn" onclick="switchTab('permissions')">权限设置</button>
+                            <button class="tab-btn" onclick="switchTab('login-auth')">登录认证</button>
+                        </div>
+                        
+                        <div class="tab-content">
+                            <!-- 用户信息Tab -->
+                            <div class="tab-pane active" id="user-info">
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label>用户ID</label>
+                                        <input type="text" name="user_id" placeholder="自动生成" class="form-control" readonly>
+                                    </div>
+                                    <div class="form-group">
+                                        <label>创建时间</label>
+                                        <input type="text" name="created_at" placeholder="自动填入" class="form-control" readonly>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <!-- 权限设置Tab -->
+                            <div class="tab-pane" id="permissions">
+                                <div class="form-group">
+                                    <label>用户角色</label>
+                                    <select name="user_role" class="form-control">
+                                        <option>管理员</option>
+                                        <option>普通用户</option>
+                                        <option>访客</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <!-- 登录认证Tab -->
+                            <div class="tab-pane" id="login-auth">
+                                <!-- 第三层嵌套：认证配置 -->
+                                <div class="nested-level-3 level-3">
+                                    <div class="level-indicator">Level 3: 认证配置</div>
+                                    
+                                    <div class="form-row">
+                                        <div class="form-group">
+                                            <label>认证方式</label>
+                                            <select name="auth_method" class="form-control">
+                                                <option>用户名密码</option>
+                                                <option>邮箱验证</option>
+                                                <option>手机验证</option>
+                                            </select>
+                                        </div>
+                                        <div class="form-group">
+                                            <label>会话超时</label>
+                                            <input type="number" name="session_timeout" value="30" class="form-control">
+                                        </div>
+                                    </div>
+                                    
+                                    <!-- 浮动登录区域 -->
+                                    <div class="floating-login login-area">
+                                        <div class="form-group">
+                                            <label>管理员账号 *</label>
+                                            <input type="text" 
+                                                   name="admin_username" 
+                                                   placeholder="请输入管理员用户名"
+                                                   class="form-control login-field"
+                                                   required
+                                                   autocomplete="username">
+                                        </div>
+                                        
+                                        <div class="form-group">
+                                            <label>管理员密码 *</label>
+                                            <input type="password" 
+                                                   name="admin_password" 
+                                                   placeholder="请输入管理员密码"
+                                                   class="form-control login-field"
+                                                   required
+                                                   autocomplete="current-password">
+                                        </div>
+                                        
+                                        <div class="form-row">
+                                            <div class="form-group">
+                                                <label>验证码</label>
+                                                <input type="text" 
+                                                       name="admin_captcha" 
+                                                       placeholder="验证码"
+                                                       class="form-control"
+                                                       maxlength="6">
+                                            </div>
+                                            <div class="form-group">
+                                                <label>双因素认证</label>
+                                                <input type="text" 
+                                                       name="two_factor" 
+                                                       placeholder="2FA代码"
+                                                       class="form-control"
+                                                       maxlength="6">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 其他配置区域 -->
+                <div class="nested-level-2 level-2">
+                    <div class="level-indicator">Level 2: 系统设置</div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>数据库连接</label>
+                            <input type="text" name="db_connection" placeholder="数据库连接字符串" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label>缓存配置</label>
+                            <input type="text" name="cache_config" placeholder="缓存配置" class="form-control">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 提交按钮 -->
+            <button type="submit" class="submit-btn" onclick="handleNestedSubmit()" data-action="nested-login">
+                🚀 管理员登录
+            </button>
+        </div>
+
+        <div class="nesting-info">
+            <strong>🏗️ 嵌套结构：</strong>
+            <ul style="margin-left: 20px; margin-top: 8px;">
+                <li><strong>Level 1:</strong> 主容器 → 系统配置区域</li>
+                <li><strong>Level 2:</strong> 用户管理 → Tab容器 → 登录认证</li>
+                <li><strong>Level 3:</strong> 认证配置 → 浮动登录区域</li>
+                <li><strong>目标:</strong> 识别深度嵌套中的admin_username和admin_password字段</li>
+            </ul>
+        </div>
+
+        <div class="back-link">
+            <a href="index.html">← 返回测试首页</a>
+        </div>
+    </div>
+
+    <script>
+        // Tab切换功能
+        function switchTab(tabId) {
+            // 隐藏所有tab内容
+            document.querySelectorAll('.tab-pane').forEach(pane => {
+                pane.classList.remove('active');
+            });
+            
+            // 移除所有tab按钮的active状态
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // 显示目标tab内容
+            document.getElementById(tabId).classList.add('active');
+            
+            // 激活对应的tab按钮
+            event.target.classList.add('active');
+            
+            console.log(`切换到Tab: ${tabId}`);
+        }
+
+        // 表单验证
+        function validateNestedForm() {
+            const username = document.querySelector('input[name="admin_username"]').value;
+            const password = document.querySelector('input[name="admin_password"]').value;
+            const submitBtn = document.querySelector('.submit-btn');
+            
+            const isValid = username.length >= 3 && password.length >= 6;
+            submitBtn.disabled = !isValid;
+            submitBtn.style.opacity = isValid ? '1' : '0.6';
+            
+            if (isValid) {
+                submitBtn.textContent = '🚀 管理员登录';
+            } else {
+                submitBtn.textContent = '请完善管理员信息';
+            }
+        }
+
+        // 提交处理
+        function handleNestedSubmit() {
+            const username = document.querySelector('input[name="admin_username"]').value;
+            const password = document.querySelector('input[name="admin_password"]').value;
+            const captcha = document.querySelector('input[name="admin_captcha"]').value;
+            const twoFactor = document.querySelector('input[name="two_factor"]').value;
+            
+            if (!username || !password) {
+                alert('请填写管理员账号和密码');
+                return;
+            }
+            
+            if (username.length < 3) {
+                alert('管理员账号至少需要3个字符');
+                return;
+            }
+            
+            if (password.length < 6) {
+                alert('管理员密码至少需要6个字符');
+                return;
+            }
+            
+            console.log('嵌套表单登录:', {
+                username,
+                password: '*'.repeat(password.length),
+                captcha: captcha || '未填写',
+                twoFactor: twoFactor || '未填写',
+                nestingLevel: 3
+            });
+            
+            alert(`嵌套表单登录成功!\n管理员账号: ${username}\n管理员密码: ${'*'.repeat(password.length)}\n验证码: ${captcha || '未填写'}\n2FA: ${twoFactor || '未填写'}\n\n✅ 成功从3层嵌套结构中识别登录字段!`);
+        }
+
+        // 页面加载完成后的初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('🔍 复杂嵌套表单页面加载完成');
+            console.log('📊 预期检测结果:');
+            console.log('  - 应该检测到main-container或floating-login容器');
+            console.log('  - 应该识别admin_username字段为用户名字段');
+            console.log('  - 应该识别admin_password字段为密码字段');
+            console.log('  - 应该正确处理3层嵌套结构');
+            console.log('  - 应该识别Tab容器中的表单');
+            console.log('  - 应该识别浮动登录区域');
+            console.log('  - 应该识别管理员登录按钮');
+            
+            // 绑定登录字段的输入事件
+            const loginFields = document.querySelectorAll('.login-field');
+            loginFields.forEach(field => {
+                field.addEventListener('input', validateNestedForm);
+            });
+            
+            // 初始验证
+            validateNestedForm();
+            
+            // 自动切换到登录认证Tab
+            setTimeout(() => {
+                const loginTab = document.querySelector('[onclick="switchTab(\'login-auth\')"]');
+                if (loginTab) {
+                    loginTab.click();
+                    console.log('自动切换到登录认证Tab页面');
+                }
+            }, 1000);
+            
+            // 高亮登录区域
+            setTimeout(() => {
+                const floatingLogin = document.querySelector('.floating-login');
+                if (floatingLogin) {
+                    floatingLogin.style.animation = 'glow 3s infinite';
+                }
+            }, 2000);
+        });
+
+        // 添加发光动画
+        const style = document.createElement('style');
+        style.textContent = `
+            @keyframes glow {
+                0% { box-shadow: 0 10px 25px rgba(239, 68, 68, 0.2); }
+                50% { box-shadow: 0 10px 25px rgba(239, 68, 68, 0.5), 0 0 20px rgba(239, 68, 68, 0.3); }
+                100% { box-shadow: 0 10px 25px rgba(239, 68, 68, 0.2); }
+            }
+        `;
+        document.head.appendChild(style);
+
+        // 键盘导航支持
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Tab' && e.target.classList.contains('login-field')) {
+                // Tab键在登录字段间导航时的特殊处理
+                console.log('在嵌套登录字段间导航');
+            }
+        });
+    </script>
+</body>
+</html> 

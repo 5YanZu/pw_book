@@ -916,6 +916,48 @@ class StorageManager {
             localStorage.removeItem(key);
         }
     }
+
+    /**
+     * 保存域名手动标记配置
+     */
+    async saveDomainMarking(domain, markingConfig) {
+        try {
+            const key = `domain_marking_${domain}`;
+            await this.setStorageData(key, markingConfig);
+            console.log(`✅ 域名标记已保存: ${domain}`, markingConfig);
+        } catch (error) {
+            console.error('保存域名标记失败:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * 获取域名手动标记配置
+     */
+    async getDomainMarking(domain) {
+        try {
+            const key = `domain_marking_${domain}`;
+            const result = await this.getStorageData(key);
+            return result || null;
+        } catch (error) {
+            console.error('获取域名标记失败:', error);
+            return null;
+        }
+    }
+
+    /**
+     * 删除域名手动标记配置
+     */
+    async removeDomainMarking(domain) {
+        try {
+            const key = `domain_marking_${domain}`;
+            await this.removeStorageData(key);
+            console.log(`✅ 域名标记已删除: ${domain}`);
+        } catch (error) {
+            console.error('删除域名标记失败:', error);
+            throw error;
+        }
+    }
 }
 
 // 创建全局实例

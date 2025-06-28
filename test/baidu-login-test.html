@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>百度登录表单测试</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 500px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        
+        .test-container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .test-title {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: #333;
+            text-align: center;
+        }
+        
+        .pass-form {
+            margin: 20px 0;
+        }
+        
+        .pass-form-item {
+            margin-bottom: 15px;
+            position: relative;
+        }
+        
+        .pass-text-input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        
+        .pass-text-input:focus {
+            border-color: #3385ff;
+            outline: none;
+        }
+        
+        .pass-button-submit {
+            width: 100%;
+            padding: 12px;
+            background: #3385ff;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        
+        .pass-button-submit:hover {
+            background: #2d78f4;
+        }
+        
+        .pass-form-item-verifyCode {
+            display: none;
+            visibility: hidden;
+        }
+        
+        .back-link {
+            text-align: center;
+            margin-top: 20px;
+        }
+        
+        .back-link a {
+            color: #3385ff;
+            text-decoration: none;
+        }
+        
+        .test-info {
+            background: #e8f4fd;
+            padding: 15px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            border-left: 4px solid #3385ff;
+        }
+        
+        .test-info h4 {
+            margin: 0 0 10px 0;
+            color: #1976d2;
+        }
+        
+        .test-info ul {
+            margin: 0;
+            padding-left: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <div class="test-title">🔍 百度登录表单测试</div>
+        
+        <div class="test-info">
+            <h4>📊 测试目标：</h4>
+            <ul>
+                <li>检测百度特有的CSS类名</li>
+                <li>识别userName字段</li>
+                <li>识别password字段</li>
+                <li>识别pass-button-submit按钮</li>
+                <li>正确处理隐藏的验证码字段</li>
+            </ul>
+        </div>
+
+        <!-- 模拟百度登录表单 -->
+        <form id="TANGRAM__PSP_11__form" class="pass-form pass-form-normal" method="POST" autocomplete="off">
+            <p style="display:none">
+                <input type="hidden" name="codeString" value="">
+                <input type="hidden" name="safeFlag" value="0">
+                <input type="hidden" name="u" value="https://www.baidu.com/">
+                <input type="hidden" name="isPhone" value="">
+                <input type="hidden" name="detect" value="1">
+                <input type="hidden" name="gid" value="F19043E-379D-4269-95EC-A6D3B998E172">
+            </p>
+            
+            <p class="pass-form-item pass-form-item-userName">
+                <input type="text" style="display:none;">
+                <input id="TANGRAM__PSP_11__userName" 
+                       type="text" 
+                       name="userName" 
+                       class="pass-text-input pass-text-input-userName" 
+                       autocomplete="off" 
+                       value="" 
+                       placeholder="手机号/用户名/邮箱">
+            </p>
+            
+            <p class="pass-form-item pass-form-item-password">
+                <input type="password" style="display: none;">
+                <input id="TANGRAM__PSP_11__password" 
+                       type="password" 
+                       name="password" 
+                       class="pass-text-input pass-text-input-password" 
+                       autocomplete="off" 
+                       value="" 
+                       placeholder="密码">
+            </p>
+            
+            <!-- 隐藏的验证码字段 -->
+            <p class="pass-form-item pass-form-item-verifyCode" style="display: none; visibility: hidden;">
+                <input id="TANGRAM__PSP_11__verifyCode" 
+                       type="text" 
+                       name="verifyCode" 
+                       class="pass-text-input pass-text-input-verifyCode" 
+                       maxlength="6" 
+                       placeholder="验证码">
+            </p>
+            
+            <p class="pass-form-item pass-form-item-submit">
+                <input id="TANGRAM__PSP_11__submit" 
+                       type="submit" 
+                       value="登录" 
+                       class="pass-button pass-button-submit">
+            </p>
+        </form>
+
+        <div class="back-link">
+            <a href="index.html">← 返回测试首页</a>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('🔍 百度登录表单测试页面加载完成');
+            console.log('📊 预期检测结果:');
+            console.log('  - 应该检测到pass-form表单');
+            console.log('  - 应该识别userName字段为用户名');
+            console.log('  - 应该识别password字段为密码');
+            console.log('  - 应该识别pass-button-submit按钮');
+            console.log('  - 应该正确处理隐藏的验证码字段');
+            console.log('  - 验证码字段隐藏，不应严重影响评分');
+            
+            // 表单提交处理
+            document.querySelector('.pass-form').addEventListener('submit', (e) => {
+                e.preventDefault();
+                
+                const formData = new FormData(e.target);
+                const username = formData.get('userName');
+                const password = formData.get('password');
+                
+                if (!username || !password) {
+                    alert('请填写完整的登录信息');
+                    return;
+                }
+                
+                console.log('百度登录模拟:', { username, password: '*'.repeat(password.length) });
+                alert(`百度登录成功!\n用户名: ${username}\n密码: ${'*'.repeat(password.length)}`);
+            });
+        });
+    </script>
+</body>
+</html> 

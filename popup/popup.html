@@ -37,6 +37,7 @@
                 <div class="temp-actions">
                     <button class="btn-save" id="btnSave">保存</button>
                     <button class="btn-ignore" id="btnIgnore">忽略</button>
+                    <button id="clearTempBtn" class="action-btn danger-btn">清空暂存</button>
                 </div>
             </div>
         </div>
@@ -79,6 +80,15 @@
                         <path d="M21 12c0 4.97-4.03 9-9 9s-9-4.03-9-9 4.03-9 9-9c2.39 0 4.56.94 6.16 2.46"></path>
                     </svg>
                     <span>自动填充</span>
+                </button>
+                
+                <button class="quick-btn" id="manualMarkBtn" title="手动标记字段">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M3 17v3a1 1 0 0 0 1 1h3l10-10-4-4L3 17z"></path>
+                        <path d="M13 3l4 4"></path>
+                        <circle cx="18" cy="8" r="3"></circle>
+                    </svg>
+                    <span>手动标记</span>
                 </button>
                 
                 <button class="quick-btn" id="generatePasswordBtn" title="生成随机密码">

@@ -1,0 +1,457 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>混合组件表单测试</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            width: 100%;
+            max-width: 480px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #2d3748;
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #718096;
+            font-size: 0.9rem;
+        }
+
+        .test-info {
+            background: #e6fffa;
+            border: 1px solid #81e6d9;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 25px;
+            font-size: 0.85rem;
+            color: #234e52;
+        }
+
+        .test-info h3 {
+            color: #2c7a7b;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        /* 自定义组件样式 */
+        custom-form {
+            display: block;
+            background: #f7fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+
+        custom-form::before {
+            content: "Custom Form Component";
+            display: block;
+            background: #4299e1;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            width: fit-content;
+            margin-bottom: 20px;
+        }
+
+        user-input, pass-input {
+            display: block;
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 16px;
+            background: white;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        user-input:focus, pass-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        user-input::before {
+            content: "👤 ";
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+        }
+
+        pass-input::before {
+            content: "🔒 ";
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+        }
+
+        submit-btn {
+            display: block;
+            width: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 16px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            text-align: center;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        submit-btn:active {
+            transform: translateY(0);
+        }
+
+        /* 自定义输入框样式 */
+        .custom-input-wrapper {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .custom-input {
+            width: 100%;
+            min-height: 50px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 14px 16px;
+            background: white;
+            cursor: text;
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+
+        .custom-input:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            outline: none;
+        }
+
+        .custom-input:empty:before {
+            content: attr(data-placeholder);
+            color: #a0aec0;
+            pointer-events: none;
+        }
+
+        .custom-input[data-type="password"] {
+            font-family: monospace;
+            letter-spacing: 2px;
+        }
+
+        .input-label {
+            position: absolute;
+            top: -8px;
+            left: 12px;
+            background: white;
+            padding: 0 8px;
+            font-size: 0.8rem;
+            color: #4a5568;
+            font-weight: 500;
+        }
+
+        .component-demo {
+            background: #f0fff4;
+            border: 1px solid #9ae6b4;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .demo-title {
+            color: #2f855a;
+            font-weight: 600;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+        }
+
+        .back-link {
+            text-align: center;
+            margin-top: 25px;
+        }
+
+        .back-link a {
+            color: #667eea;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .back-link a:hover {
+            text-decoration: underline;
+        }
+
+        .validation-message {
+            font-size: 0.8rem;
+            margin-top: 5px;
+            padding: 8px 12px;
+            border-radius: 6px;
+            display: none;
+        }
+
+        .validation-message.success {
+            background: #c6f6d5;
+            color: #2f855a;
+            border: 1px solid #9ae6b4;
+        }
+
+        .validation-message.error {
+            background: #fed7d7;
+            color: #c53030;
+            border: 1px solid #feb2b2;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔄 混合组件表单</h1>
+            <p>测试混合组件和role属性的检测能力</p>
+        </div>
+
+        <div class="test-info">
+            <h3>🔍 测试要点：</h3>
+            <ul style="margin-left: 20px;">
+                <li>role="textbox"元素识别</li>
+                <li>tabindex属性支持</li>
+                <li>data-field属性检测</li>
+                <li>自定义键盘事件处理</li>
+                <li>混合元素类型检测</li>
+            </ul>
+        </div>
+
+        <!-- 混合组件表单 -->
+        <div class="hybrid-form" data-component="HybridAuth">
+            <!-- 使用div模拟input -->
+            <div class="custom-input-wrapper">
+                <div class="input-label">账号</div>
+                <div class="custom-input" 
+                     role="textbox"
+                     tabindex="0"
+                     data-field="account"
+                     data-placeholder="请输入账号信息"
+                     onkeydown="handleCustomKeydown(event)"
+                     onfocus="handleCustomFocus(this)"
+                     onblur="handleCustomBlur(this)"></div>
+            </div>
+
+            <!-- 使用div模拟password input -->
+            <div class="custom-input-wrapper">
+                <div class="input-label">密码</div>
+                <div class="custom-input" 
+                     role="textbox"
+                     tabindex="0"
+                     data-field="password"
+                     data-type="password"
+                     data-placeholder="请输入登录密码"
+                     onkeydown="handleCustomKeydown(event)"
+                     onfocus="handleCustomFocus(this)"
+                     onblur="handleCustomBlur(this)"></div>
+            </div>
+
+            <!-- 自定义提交元素 -->
+            <div class="custom-input-wrapper">
+                <submit-btn role="button"
+                           tabindex="0"
+                           data-action="hybrid-login"
+                           onkeydown="handleSubmitKeydown(event)"
+                           onclick="handleHybridLogin()">
+                    🎭 混合登录
+                </submit-btn>
+            </div>
+        </div>
+
+        <div class="component-demo">
+            <div class="demo-title">🎯 演示功能：</div>
+            <ul style="margin-left: 20px; margin-top: 8px;">
+                <li>使用role="textbox"模拟输入框</li>
+                <li>完整的键盘导航支持</li>
+                <li>自定义焦点状态处理</li>
+                <li>混合元素类型检测</li>
+                <li>无障碍访问支持</li>
+            </ul>
+        </div>
+
+        <div class="back-link">
+            <a href="index.html">← 返回测试首页</a>
+        </div>
+    </div>
+
+    <script>
+        // 混合组件登录处理
+        function handleHybridLogin() {
+            const accountEl = document.querySelector('[data-field="account"]');
+            const passwordEl = document.querySelector('.hybrid-form [data-field="password"]');
+            
+            const account = accountEl.textContent.trim();
+            const password = passwordEl.textContent.trim();
+            
+            if (!account || !password) {
+                alert('请填写完整的账号密码');
+                return;
+            }
+            
+            if (account.length < 3) {
+                alert('账号至少需要3个字符');
+                return;
+            }
+            
+            if (password.length < 6) {
+                alert('密码至少需要6个字符');
+                return;
+            }
+            
+            console.log('混合组件登录:', { account, password });
+            alert(`混合组件登录成功!\n账号: ${account}\n密码: ${'*'.repeat(password.length)}`);
+        }
+
+
+
+        // 自定义键盘事件处理
+        function handleCustomKeydown(event) {
+            const element = event.target;
+            
+            // 处理字符输入
+            if (event.key.length === 1 && !event.ctrlKey && !event.altKey && !event.metaKey) {
+                event.preventDefault();
+                const selection = window.getSelection();
+                const range = selection.getRangeAt(0);
+                range.deleteContents();
+                range.insertNode(document.createTextNode(event.key));
+                range.collapse(false);
+                selection.removeAllRanges();
+                selection.addRange(range);
+                
+                // 触发输入事件
+                element.dispatchEvent(new Event('input', { bubbles: true }));
+            }
+            // 处理退格键
+            else if (event.key === 'Backspace') {
+                event.preventDefault();
+                const selection = window.getSelection();
+                if (selection.rangeCount > 0) {
+                    const range = selection.getRangeAt(0);
+                    if (range.collapsed && range.startOffset > 0) {
+                        range.setStart(range.startContainer, range.startOffset - 1);
+                        range.deleteContents();
+                    } else if (!range.collapsed) {
+                        range.deleteContents();
+                    }
+                }
+                element.dispatchEvent(new Event('input', { bubbles: true }));
+            }
+            // 处理回车键导航
+            else if (event.key === 'Enter') {
+                event.preventDefault();
+                const nextElement = element.closest('.custom-input-wrapper').nextElementSibling?.querySelector('[role="textbox"], submit-btn');
+                if (nextElement) {
+                    nextElement.focus();
+                    if (nextElement.tagName.toLowerCase() === 'submit-btn') {
+                        nextElement.click();
+                    }
+                }
+            }
+        }
+
+        function handleSubmitKeydown(event) {
+            if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                event.target.click();
+            }
+        }
+
+        function handleCustomFocus(element) {
+            element.style.borderColor = '#f093fb';
+            element.style.boxShadow = '0 0 0 3px rgba(240, 147, 251, 0.1)';
+            
+            // 设置光标到末尾
+            const range = document.createRange();
+            const sel = window.getSelection();
+            range.selectNodeContents(element);
+            range.collapse(false);
+            sel.removeAllRanges();
+            sel.addRange(range);
+        }
+
+        function handleCustomBlur(element) {
+            element.style.borderColor = '#e2e8f0';
+            element.style.boxShadow = 'none';
+        }
+
+        // 页面加载完成后的初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('🔍 混合组件表单页面加载完成');
+            console.log('📊 预期检测结果:');
+            console.log('  - 应该检测到HybridAuth组件');
+            console.log('  - 应该识别role="textbox"元素');
+            console.log('  - 应该识别data-field="account"字段');
+            console.log('  - 应该识别data-field="password"字段');
+            console.log('  - 应该识别data-type="password"属性');
+            console.log('  - 应该识别submit-btn自定义按钮');
+            console.log('  - 应该识别data-action="hybrid-login"属性');
+            
+            // 为自定义textbox元素添加值属性支持
+            const textboxes = document.querySelectorAll('[role="textbox"]');
+            textboxes.forEach(textbox => {
+                // 让元素支持value属性
+                Object.defineProperty(textbox, 'value', {
+                    get: function() {
+                        return this.textContent || '';
+                    },
+                    set: function(val) {
+                        this.textContent = val;
+                        this.dispatchEvent(new Event('input', { bubbles: true }));
+                    }
+                });
+                
+                // 添加输入事件监听
+                textbox.addEventListener('input', (e) => {
+                    console.log(`输入事件: ${e.target.getAttribute('data-field')} = "${e.target.textContent}"`);
+                });
+            });
+        });
+    </script>
+</body>
+</html> 

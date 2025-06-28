@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>企业级SSO表单测试</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .company-logo {
+            width: 80px;
+            height: 80px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            margin: 0 auto 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+        }
+
+        .header h1 {
+            font-size: 1.6rem;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            opacity: 0.9;
+            font-size: 0.9rem;
+        }
+
+        .form-body {
+            padding: 40px;
+        }
+
+        .test-info {
+            background: #f7fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 25px;
+            font-size: 0.85rem;
+            color: #4a5568;
+        }
+
+        .test-info h3 {
+            color: #2d3748;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        .enterprise-form {
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #4a5568;
+            font-weight: 500;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        .form-group select,
+        .form-group input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .form-group select:focus,
+        .form-group input:focus {
+            outline: none;
+            border-color: #2d3748;
+            box-shadow: 0 0 0 3px rgba(45, 55, 72, 0.1);
+        }
+
+        .two-factor-group {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 10px;
+            align-items: end;
+        }
+
+        .captcha-btn {
+            background: #e2e8f0;
+            border: 2px solid #e2e8f0;
+            padding: 14px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .captcha-btn:hover {
+            background: #cbd5e0;
+            border-color: #cbd5e0;
+        }
+
+        .enterprise-login-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #2d3748 0%, #4a5568 100%);
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .enterprise-login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(45, 55, 72, 0.3);
+        }
+
+        .enterprise-login-btn:disabled {
+            background: #cbd5e0;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .additional-options {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+            font-size: 0.9rem;
+        }
+
+        .additional-options label {
+            display: flex;
+            align-items: center;
+            color: #718096;
+            cursor: pointer;
+        }
+
+        .additional-options input[type="checkbox"] {
+            margin-right: 8px;
+        }
+
+        .forgot-link {
+            color: #2d3748;
+            text-decoration: none;
+        }
+
+        .forgot-link:hover {
+            text-decoration: underline;
+        }
+
+        .back-link {
+            text-align: center;
+            margin-top: 25px;
+        }
+
+        .back-link a {
+            color: #2d3748;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .back-link a:hover {
+            text-decoration: underline;
+        }
+
+        .security-notice {
+            background: #fed7d7;
+            border: 1px solid #feb2b2;
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 20px;
+            font-size: 0.8rem;
+            color: #c53030;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="company-logo">🏢</div>
+            <h1>企业管理系统</h1>
+            <p>安全登录 • 统一认证</p>
+        </div>
+
+        <div class="form-body">
+            <div class="test-info">
+                <h3>🔍 测试要点：</h3>
+                <ul style="margin-left: 20px;">
+                    <li>员工工号字段识别</li>
+                    <li>企业密码字段识别</li>
+                    <li>企业域选择器处理</li>
+                    <li>双因素认证字段</li>
+                    <li>企业登录按钮识别</li>
+                </ul>
+            </div>
+
+            <form class="enterprise-form" method="post" action="/enterprise/login">
+                <div class="form-group">
+                    <label for="company_domain">企业域</label>
+                    <select name="company_domain" id="company_domain" required>
+                        <option value="">请选择企业域</option>
+                        <option value="tech.corp">技术公司 (tech.corp)</option>
+                        <option value="finance.corp">金融公司 (finance.corp)</option>
+                        <option value="manufacturing.corp">制造公司 (manufacturing.corp)</option>
+                        <option value="consulting.corp">咨询公司 (consulting.corp)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="employee_id">员工工号</label>
+                    <input type="text" 
+                           name="employee_id" 
+                           id="employee_id"
+                           placeholder="请输入您的员工工号"
+                           pattern="[0-9]{4,8}"
+                           required
+                           autocomplete="username">
+                </div>
+
+                <div class="form-group">
+                    <label for="enterprise_password">企业密码</label>
+                    <input type="password" 
+                           name="enterprise_password" 
+                           id="enterprise_password"
+                           placeholder="请输入企业登录密码"
+                           required
+                           autocomplete="current-password">
+                </div>
+
+                <div class="form-group">
+                    <label for="verification_code">双因素认证码 (可选)</label>
+                    <div class="two-factor-group">
+                        <input type="text" 
+                               name="verification_code" 
+                               id="verification_code"
+                               placeholder="验证码"
+                               maxlength="6"
+                               pattern="[0-9]{6}">
+                        <button type="button" class="captcha-btn" onclick="refreshCaptcha()">
+                            获取验证码
+                        </button>
+                    </div>
+                </div>
+
+                <button type="submit" class="enterprise-login-btn" id="loginBtn">
+                    🔐 企业登录
+                </button>
+
+                <div class="additional-options">
+                    <label>
+                        <input type="checkbox" name="remember_device" value="1">
+                        记住此设备
+                    </label>
+                    <a href="#" class="forgot-link">忘记密码？</a>
+                </div>
+            </form>
+
+            <div class="security-notice">
+                🛡️ 安全提示：请确保您在安全的网络环境中登录，不要在公共设备上保存登录信息。
+            </div>
+
+            <div class="back-link">
+                <a href="index.html">← 返回测试首页</a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function refreshCaptcha() {
+            const btn = event.target;
+            btn.disabled = true;
+            btn.textContent = '发送中...';
+            
+            // 模拟发送验证码
+            setTimeout(() => {
+                btn.textContent = '已发送';
+                setTimeout(() => {
+                    btn.disabled = false;
+                    btn.textContent = '重新获取';
+                }, 2000);
+            }, 1500);
+        }
+
+        // 表单验证
+        function validateForm() {
+            const companyDomain = document.getElementById('company_domain').value;
+            const employeeId = document.getElementById('employee_id').value;
+            const password = document.getElementById('enterprise_password').value;
+            const loginBtn = document.getElementById('loginBtn');
+            
+            const isValid = companyDomain && employeeId.length >= 4 && password.length >= 6;
+            loginBtn.disabled = !isValid;
+            loginBtn.style.opacity = isValid ? '1' : '0.6';
+        }
+
+        // 绑定事件监听器
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('🔍 企业级SSO表单页面加载完成');
+            console.log('📊 预期检测结果:');
+            console.log('  - 应该检测到enterprise-form表单');
+            console.log('  - 应该识别employee_id字段为用户名字段');
+            console.log('  - 应该识别enterprise_password字段为密码字段');
+            console.log('  - 应该识别企业登录按钮');
+            console.log('  - 应该正确处理企业域选择器');
+            
+            const inputs = document.querySelectorAll('input, select');
+            inputs.forEach(input => {
+                input.addEventListener('input', validateForm);
+                input.addEventListener('change', validateForm);
+            });
+            
+            // 初始验证
+            validateForm();
+        });
+
+        // 表单提交处理
+        document.querySelector('.enterprise-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData(e.target);
+            const data = Object.fromEntries(formData);
+            
+            console.log('企业登录提交:', data);
+            alert(`企业登录信息:\n企业域: ${data.company_domain}\n工号: ${data.employee_id}\n密码: ${'*'.repeat(data.enterprise_password.length)}\n验证码: ${data.verification_code || '未填写'}`);
+        });
+    </script>
+</body>
+</html> 

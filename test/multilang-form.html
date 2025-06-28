@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulaire Multilingue / 多语言表单测试</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            padding: 40px;
+            width: 100%;
+            max-width: 480px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #2d3748;
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header p {
+            color: #718096;
+            font-size: 0.9rem;
+        }
+
+        .language-selector {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+
+        .lang-btn {
+            padding: 8px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 20px;
+            background: white;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.3s ease;
+        }
+
+        .lang-btn.active {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            border-color: transparent;
+        }
+
+        .lang-btn:hover {
+            border-color: #f093fb;
+        }
+
+        .test-info {
+            background: #fef5e7;
+            border: 1px solid #f6ad55;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 25px;
+            font-size: 0.85rem;
+            color: #744210;
+        }
+
+        .test-info h3 {
+            color: #c05621;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        .multilang-form {
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #4a5568;
+            font-weight: 500;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: #f093fb;
+            box-shadow: 0 0 0 3px rgba(240, 147, 251, 0.1);
+        }
+
+        .input-icon {
+            position: relative;
+        }
+
+        .input-icon::before {
+            content: attr(data-icon);
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 18px;
+            color: #a0aec0;
+            pointer-events: none;
+        }
+
+        .input-icon input {
+            padding-left: 45px;
+        }
+
+        .submit-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(240, 147, 251, 0.4);
+        }
+
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+
+        .additional-links {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+            font-size: 0.9rem;
+        }
+
+        .additional-links a {
+            color: #f093fb;
+            text-decoration: none;
+        }
+
+        .additional-links a:hover {
+            text-decoration: underline;
+        }
+
+        .back-link {
+            text-align: center;
+            margin-top: 25px;
+        }
+
+        .back-link a {
+            color: #f093fb;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .back-link a:hover {
+            text-decoration: underline;
+        }
+
+        .language-note {
+            background: #e6fffa;
+            border: 1px solid #81e6d9;
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 20px;
+            font-size: 0.8rem;
+            color: #234e52;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌍 Connexion Multilingue</h1>
+            <p>Formulaire de connexion international</p>
+        </div>
+
+        <div class="language-selector">
+            <button class="lang-btn active" onclick="switchLanguage('fr')" data-lang="fr">🇫🇷 Français</button>
+            <button class="lang-btn" onclick="switchLanguage('es')" data-lang="es">🇪🇸 Español</button>
+            <button class="lang-btn" onclick="switchLanguage('de')" data-lang="de">🇩🇪 Deutsch</button>
+            <button class="lang-btn" onclick="switchLanguage('ja')" data-lang="ja">🇯🇵 日本語</button>
+        </div>
+
+        <div class="test-info">
+            <h3>🔍 Points de test / 测试要点：</h3>
+            <ul style="margin-left: 20px;">
+                <li>Reconnaissance des champs multilingues</li>
+                <li>Attributs name en différentes langues</li>
+                <li>Placeholders internationaux</li>
+                <li>Boutons de soumission multilingues</li>
+            </ul>
+        </div>
+
+        <!-- 法语表单 -->
+        <form class="multilang-form" id="form-fr" method="post">
+            <div class="form-group">
+                <label for="utilisateur_fr">Nom d'utilisateur</label>
+                <div class="input-icon" data-icon="👤">
+                    <input type="text" 
+                           name="utilisateur" 
+                           id="utilisateur_fr"
+                           placeholder="Nom d'utilisateur / Email"
+                           class="input-field"
+                           required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="mot_de_passe_fr">Mot de passe</label>
+                <div class="input-icon" data-icon="🔒">
+                    <input type="password" 
+                           name="mot_de_passe" 
+                           id="mot_de_passe_fr"
+                           placeholder="Votre mot de passe"
+                           class="input-field"
+                           required>
+                </div>
+            </div>
+
+            <button type="submit" class="submit-btn">
+                Se connecter
+            </button>
+
+            <div class="additional-links">
+                <a href="#">Mot de passe oublié ?</a>
+                <a href="#">Créer un compte</a>
+            </div>
+        </form>
+
+        <!-- 西班牙语表单 -->
+        <form class="multilang-form hidden" id="form-es" method="post">
+            <div class="form-group">
+                <label for="usuario_es">Nombre de usuario</label>
+                <div class="input-icon" data-icon="👤">
+                    <input type="text" 
+                           name="usuario" 
+                           id="usuario_es"
+                           placeholder="Nombre de usuario / Correo"
+                           class="input-field"
+                           required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="contraseña_es">Contraseña</label>
+                <div class="input-icon" data-icon="🔒">
+                    <input type="password" 
+                           name="contraseña" 
+                           id="contraseña_es"
+                           placeholder="Su contraseña"
+                           class="input-field"
+                           required>
+                </div>
+            </div>
+
+            <button type="submit" class="submit-btn">
+                Iniciar sesión
+            </button>
+
+            <div class="additional-links">
+                <a href="#">¿Olvidó la contraseña?</a>
+                <a href="#">Crear cuenta</a>
+            </div>
+        </form>
+
+        <!-- 德语表单 -->
+        <form class="multilang-form hidden" id="form-de" method="post">
+            <div class="form-group">
+                <label for="benutzername_de">Benutzername</label>
+                <div class="input-icon" data-icon="👤">
+                    <input type="text" 
+                           name="benutzername" 
+                           id="benutzername_de"
+                           placeholder="Benutzername / E-Mail"
+                           class="input-field"
+                           required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="passwort_de">Passwort</label>
+                <div class="input-icon" data-icon="🔒">
+                    <input type="password" 
+                           name="passwort" 
+                           id="passwort_de"
+                           placeholder="Ihr Passwort"
+                           class="input-field"
+                           required>
+                </div>
+            </div>
+
+            <button type="submit" class="submit-btn">
+                Anmelden
+            </button>
+
+            <div class="additional-links">
+                <a href="#">Passwort vergessen?</a>
+                <a href="#">Konto erstellen</a>
+            </div>
+        </form>
+
+        <!-- 日语表单 -->
+        <form class="multilang-form hidden" id="form-ja" method="post">
+            <div class="form-group">
+                <label for="ユーザー名_ja">ユーザー名</label>
+                <div class="input-icon" data-icon="👤">
+                    <input type="text" 
+                           name="ユーザー名" 
+                           id="ユーザー名_ja"
+                           placeholder="ユーザー名 / メールアドレス"
+                           class="input-field"
+                           required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="パスワード_ja">パスワード</label>
+                <div class="input-icon" data-icon="🔒">
+                    <input type="password" 
+                           name="パスワード" 
+                           id="パスワード_ja"
+                           placeholder="パスワードを入力"
+                           class="input-field"
+                           required>
+                </div>
+            </div>
+
+            <button type="submit" class="submit-btn">
+                ログイン
+            </button>
+
+            <div class="additional-links">
+                <a href="#">パスワードを忘れた場合</a>
+                <a href="#">アカウント作成</a>
+            </div>
+        </form>
+
+        <div class="language-note">
+            🌐 注意：此表单测试多种语言的字段名称和占位符识别能力。每种语言使用不同的name属性和placeholder文本。
+        </div>
+
+        <div class="back-link">
+            <a href="index.html">← Retour / 返回测试首页</a>
+        </div>
+    </div>
+
+    <script>
+        let currentLanguage = 'fr';
+
+        const translations = {
+            fr: {
+                title: '🌍 Connexion Multilingue',
+                subtitle: 'Formulaire de connexion international'
+            },
+            es: {
+                title: '🌍 Inicio de Sesión Multilingüe',
+                subtitle: 'Formulario de inicio de sesión internacional'
+            },
+            de: {
+                title: '🌍 Mehrsprachige Anmeldung',
+                subtitle: 'Internationales Anmeldeformular'
+            },
+            ja: {
+                title: '🌍 多言語ログイン',
+                subtitle: '国際ログインフォーム'
+            }
+        };
+
+        function switchLanguage(lang) {
+            // 隐藏当前表单
+            document.getElementById(`form-${currentLanguage}`).classList.add('hidden');
+            
+            // 显示新表单
+            document.getElementById(`form-${lang}`).classList.remove('hidden');
+            
+            // 更新按钮状态
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            document.querySelector(`[data-lang="${lang}"]`).classList.add('active');
+            
+            // 更新标题
+            const translation = translations[lang];
+            if (translation) {
+                document.querySelector('.header h1').textContent = translation.title;
+                document.querySelector('.header p').textContent = translation.subtitle;
+            }
+            
+            currentLanguage = lang;
+            
+            console.log(`🌍 切换到${lang}语言表单`);
+        }
+
+        // 绑定事件监听器
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('🔍 多语言表单页面加载完成');
+            console.log('📊 预期检测结果:');
+            console.log('  - 应该检测到当前显示的语言表单');
+            console.log('  - 应该识别多语言的name属性');
+            console.log('  - 应该识别多语言的placeholder');
+            console.log('  - 应该识别多语言的提交按钮');
+            
+            // 为每个表单绑定提交事件
+            document.querySelectorAll('.multilang-form').forEach(form => {
+                form.addEventListener('submit', (e) => {
+                    e.preventDefault();
+                    
+                    const formData = new FormData(e.target);
+                    const data = Object.fromEntries(formData);
+                    const lang = e.target.id.split('-')[1];
+                    
+                    console.log(`${lang}语言表单提交:`, data);
+                    
+                    const fieldNames = Object.keys(data);
+                    alert(`${lang.toUpperCase()}语言登录:\n用户名字段: ${fieldNames[0]}\n密码字段: ${fieldNames[1]}\n用户名: ${data[fieldNames[0]]}\n密码: ${'*'.repeat(data[fieldNames[1]].length)}`);
+                });
+            });
+        });
+    </script>
+</body>
+</html> 

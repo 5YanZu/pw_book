@@ -1,0 +1,611 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>富文本编辑器表单测试</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+            padding: 40px;
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #1f2937;
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header p {
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+
+        .test-info {
+            background: #ede9fe;
+            border: 1px solid #c4b5fd;
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 25px;
+            font-size: 0.85rem;
+            color: #5b21b6;
+        }
+
+        .test-info h3 {
+            color: #7c3aed;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        .editable-form {
+            background: #f8fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+
+        .form-title {
+            background: #6366f1;
+            color: white;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-label {
+            display: block;
+            color: #374151;
+            font-weight: 500;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        .editable-input {
+            width: 100%;
+            min-height: 50px;
+            border: 2px solid #d1d5db;
+            border-radius: 12px;
+            padding: 14px 16px;
+            background: white;
+            cursor: text;
+            transition: all 0.3s ease;
+            font-size: 16px;
+            line-height: 1.5;
+            position: relative;
+        }
+
+        .editable-input:focus {
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+            outline: none;
+        }
+
+        .editable-input:empty:before {
+            content: attr(data-placeholder);
+            color: #9ca3af;
+            pointer-events: none;
+            font-style: italic;
+        }
+
+        .editable-input[data-type="password"] {
+            font-family: monospace;
+            letter-spacing: 3px;
+        }
+
+        .editable-input[data-type="password"]:not(:empty) {
+            color: #374151;
+        }
+
+        .input-icon {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 18px;
+            color: #9ca3af;
+            pointer-events: none;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .char-count {
+            text-align: right;
+            font-size: 0.75rem;
+            color: #6b7280;
+            margin-top: 4px;
+        }
+
+        .validation-status {
+            margin-top: 8px;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 0.8rem;
+            display: none;
+        }
+
+        .validation-status.success {
+            background: #d1fae5;
+            color: #065f46;
+            border: 1px solid #a7f3d0;
+        }
+
+        .validation-status.error {
+            background: #fee2e2;
+            color: #dc2626;
+            border: 1px solid #fecaca;
+        }
+
+        .validation-status.warning {
+            background: #fef3c7;
+            color: #d97706;
+            border: 1px solid #fde68a;
+        }
+
+        .submit-button {
+            width: 100%;
+            background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+            color: white;
+            border: none;
+            padding: 16px 20px;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .submit-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(99, 102, 241, 0.3);
+        }
+
+        .submit-button:active {
+            transform: translateY(0);
+        }
+
+        .submit-button:disabled {
+            background: #d1d5db;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .toolbar {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 15px;
+            padding: 8px;
+            background: #f1f5f9;
+            border-radius: 8px;
+        }
+
+        .toolbar-btn {
+            padding: 6px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            background: white;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: all 0.2s;
+        }
+
+        .toolbar-btn:hover {
+            background: #f8fafc;
+            border-color: #6366f1;
+        }
+
+        .toolbar-btn.active {
+            background: #6366f1;
+            color: white;
+            border-color: #6366f1;
+        }
+
+        .back-link {
+            text-align: center;
+            margin-top: 25px;
+        }
+
+        .back-link a {
+            color: #6366f1;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .back-link a:hover {
+            text-decoration: underline;
+        }
+
+        .demo-features {
+            background: #f0f9ff;
+            border: 1px solid #bae6fd;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+            font-size: 0.8rem;
+            color: #0c4a6e;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>✏️ 富文本编辑器表单</h1>
+            <p>测试ContentEditable元素的表单检测</p>
+        </div>
+
+        <div class="test-info">
+            <h3>🔍 测试要点：</h3>
+            <ul style="margin-left: 20px;">
+                <li>ContentEditable元素识别</li>
+                <li>data-field属性检测</li>
+                <li>data-type="password"处理</li>
+                <li>富文本编辑器容器检测</li>
+                <li>非标准输入元素支持</li>
+            </ul>
+        </div>
+
+        <div class="editable-form" data-component="EditableLoginForm">
+            <div class="form-title">📝 富文本登录表单</div>
+            
+            <!-- 用户名输入 -->
+            <div class="input-group">
+                <label class="input-label">用户名或邮箱</label>
+                <div class="toolbar">
+                    <button class="toolbar-btn" onclick="formatText('bold')" title="加粗">B</button>
+                    <button class="toolbar-btn" onclick="formatText('italic')" title="斜体">I</button>
+                    <button class="toolbar-btn" onclick="clearFormatting('username')" title="清除格式">Clear</button>
+                </div>
+                <div class="input-wrapper">
+                    <div class="editable-input" 
+                         contenteditable="true" 
+                         data-field="username"
+                         data-placeholder="请输入用户名、邮箱或手机号"
+                         oninput="handleInput(this)"
+                         onpaste="handlePaste(event)"
+                         onfocus="handleFocus(this)"
+                         onblur="handleBlur(this)"></div>
+                    <div class="input-icon">👤</div>
+                </div>
+                <div class="char-count" id="username-count">0 / 50</div>
+                <div class="validation-status" id="username-validation"></div>
+            </div>
+
+            <!-- 密码输入 -->
+            <div class="input-group">
+                <label class="input-label">登录密码</label>
+                <div class="input-wrapper">
+                    <div class="editable-input" 
+                         contenteditable="true" 
+                         data-field="password"
+                         data-type="password"
+                         data-placeholder="请输入登录密码"
+                         oninput="handlePasswordInput(this)"
+                         onpaste="handlePasswordPaste(event)"
+                         onfocus="handleFocus(this)"
+                         onblur="handleBlur(this)"></div>
+                    <div class="input-icon">🔒</div>
+                </div>
+                <div class="char-count" id="password-count">0 / 20</div>
+                <div class="validation-status" id="password-validation"></div>
+            </div>
+
+            <!-- 备注信息 -->
+            <div class="input-group">
+                <label class="input-label">登录备注 (可选)</label>
+                <div class="input-wrapper">
+                    <div class="editable-input" 
+                         contenteditable="true" 
+                         data-field="notes"
+                         data-placeholder="可输入登录相关备注信息..."
+                         style="min-height: 80px;"
+                         oninput="handleNotesInput(this)"></div>
+                    <div class="input-icon">📝</div>
+                </div>
+                <div class="char-count" id="notes-count">0 / 200</div>
+            </div>
+
+            <button class="submit-button" 
+                    onclick="handleEditableSubmit()" 
+                    data-action="editable-login"
+                    id="submitBtn">
+                🚀 富文本登录
+            </button>
+        </div>
+
+        <div class="demo-features">
+            <strong>🎯 演示功能：</strong>
+            <ul style="margin-left: 20px; margin-top: 8px;">
+                <li>支持富文本格式（加粗、斜体）</li>
+                <li>实时字符计数和验证</li>
+                <li>密码字段特殊处理</li>
+                <li>粘贴内容过滤</li>
+                <li>键盘导航支持</li>
+            </ul>
+        </div>
+
+        <div class="back-link">
+            <a href="index.html">← 返回测试首页</a>
+        </div>
+    </div>
+
+    <script>
+        let formData = {
+            username: '',
+            password: '',
+            notes: ''
+        };
+
+        // 处理用户名输入
+        function handleInput(element) {
+            const field = element.getAttribute('data-field');
+            const content = element.textContent;
+            const maxLength = field === 'username' ? 50 : 20;
+            
+            // 更新数据
+            formData[field] = content;
+            
+            // 更新字符计数
+            updateCharCount(field, content.length, maxLength);
+            
+            // 验证输入
+            validateField(field, content);
+            
+            // 更新提交按钮状态
+            updateSubmitButton();
+        }
+
+        // 处理密码输入（特殊处理）
+        function handlePasswordInput(element) {
+            const content = element.textContent;
+            
+            // 限制密码长度
+            if (content.length > 20) {
+                element.textContent = content.substring(0, 20);
+                // 重新设置光标位置
+                setCaretToEnd(element);
+            }
+            
+            formData.password = element.textContent;
+            updateCharCount('password', element.textContent.length, 20);
+            validateField('password', element.textContent);
+            updateSubmitButton();
+        }
+
+        // 处理备注输入
+        function handleNotesInput(element) {
+            const content = element.textContent;
+            
+            if (content.length > 200) {
+                element.textContent = content.substring(0, 200);
+                setCaretToEnd(element);
+            }
+            
+            formData.notes = element.textContent;
+            updateCharCount('notes', element.textContent.length, 200);
+        }
+
+        // 更新字符计数
+        function updateCharCount(field, current, max) {
+            const countEl = document.getElementById(`${field}-count`);
+            if (countEl) {
+                countEl.textContent = `${current} / ${max}`;
+                countEl.style.color = current > max * 0.9 ? '#dc2626' : '#6b7280';
+            }
+        }
+
+        // 验证字段
+        function validateField(field, value) {
+            const validationEl = document.getElementById(`${field}-validation`);
+            if (!validationEl) return;
+            
+            let message = '';
+            let type = '';
+            
+            if (field === 'username') {
+                if (value.length === 0) {
+                    validationEl.style.display = 'none';
+                    return;
+                } else if (value.length < 3) {
+                    message = '⚠️ 用户名至少需要3个字符';
+                    type = 'warning';
+                } else if (value.includes('@') && !isValidEmail(value)) {
+                    message = '❌ 邮箱格式不正确';
+                    type = 'error';
+                } else {
+                    message = '✅ 用户名格式正确';
+                    type = 'success';
+                }
+            } else if (field === 'password') {
+                if (value.length === 0) {
+                    validationEl.style.display = 'none';
+                    return;
+                } else if (value.length < 6) {
+                    message = '⚠️ 密码至少需要6个字符';
+                    type = 'warning';
+                } else if (value.length >= 8 && /[A-Z]/.test(value) && /[0-9]/.test(value)) {
+                    message = '✅ 密码强度很好';
+                    type = 'success';
+                } else {
+                    message = '✅ 密码格式正确';
+                    type = 'success';
+                }
+            }
+            
+            validationEl.textContent = message;
+            validationEl.className = `validation-status ${type}`;
+            validationEl.style.display = 'block';
+        }
+
+        // 更新提交按钮状态
+        function updateSubmitButton() {
+            const submitBtn = document.getElementById('submitBtn');
+            const isValid = formData.username.length >= 3 && formData.password.length >= 6;
+            
+            submitBtn.disabled = !isValid;
+            submitBtn.style.opacity = isValid ? '1' : '0.6';
+        }
+
+        // 处理粘贴事件
+        function handlePaste(event) {
+            event.preventDefault();
+            const text = (event.clipboardData || window.clipboardData).getData('text');
+            const cleanText = text.replace(/[\r\n]+/g, ' ').trim();
+            
+            document.execCommand('insertText', false, cleanText);
+        }
+
+        // 处理密码粘贴（移除格式）
+        function handlePasswordPaste(event) {
+            event.preventDefault();
+            const text = (event.clipboardData || window.clipboardData).getData('text');
+            const cleanText = text.replace(/[^\w!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/g, '').substring(0, 20);
+            
+            document.execCommand('insertText', false, cleanText);
+        }
+
+        // 焦点处理
+        function handleFocus(element) {
+            element.style.borderColor = '#6366f1';
+            element.style.boxShadow = '0 0 0 3px rgba(99, 102, 241, 0.1)';
+        }
+
+        function handleBlur(element) {
+            element.style.borderColor = '#d1d5db';
+            element.style.boxShadow = 'none';
+        }
+
+        // 格式化文本
+        function formatText(command) {
+            document.execCommand(command, false, null);
+        }
+
+        // 清除格式
+        function clearFormatting(field) {
+            const element = document.querySelector(`[data-field="${field}"]`);
+            if (element) {
+                const text = element.textContent;
+                element.innerHTML = '';
+                element.textContent = text;
+            }
+        }
+
+        // 设置光标到末尾
+        function setCaretToEnd(element) {
+            const range = document.createRange();
+            const sel = window.getSelection();
+            range.selectNodeContents(element);
+            range.collapse(false);
+            sel.removeAllRanges();
+            sel.addRange(range);
+        }
+
+        // 邮箱验证
+        function isValidEmail(email) {
+            return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+        }
+
+        // 提交处理
+        function handleEditableSubmit() {
+            if (!formData.username || !formData.password) {
+                alert('请填写完整的登录信息');
+                return;
+            }
+            
+            if (formData.username.length < 3) {
+                alert('用户名至少需要3个字符');
+                return;
+            }
+            
+            if (formData.password.length < 6) {
+                alert('密码至少需要6个字符');
+                return;
+            }
+            
+            console.log('富文本表单提交:', formData);
+            alert(`富文本登录成功!\n用户名: ${formData.username}\n密码: ${'*'.repeat(formData.password.length)}\n备注: ${formData.notes || '无'}`);
+        }
+
+        // 键盘导航
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Tab') {
+                const editables = document.querySelectorAll('[contenteditable="true"]');
+                const current = document.activeElement;
+                const currentIndex = Array.from(editables).indexOf(current);
+                
+                if (currentIndex >= 0) {
+                    e.preventDefault();
+                    const nextIndex = e.shiftKey ? 
+                        (currentIndex - 1 + editables.length) % editables.length :
+                        (currentIndex + 1) % editables.length;
+                    
+                    if (nextIndex < editables.length) {
+                        editables[nextIndex].focus();
+                    } else {
+                        document.getElementById('submitBtn').focus();
+                    }
+                }
+            }
+        });
+
+        // 页面加载完成后的初始化
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('🔍 富文本编辑器表单页面加载完成');
+            console.log('📊 预期检测结果:');
+            console.log('  - 应该检测到EditableLoginForm组件');
+            console.log('  - 应该识别contenteditable="true"元素');
+            console.log('  - 应该识别data-field="username"字段');
+            console.log('  - 应该识别data-field="password"字段');
+            console.log('  - 应该识别data-type="password"属性');
+            console.log('  - 应该识别data-action="editable-login"按钮');
+            
+            // 初始化字符计数
+            updateCharCount('username', 0, 50);
+            updateCharCount('password', 0, 20);
+            updateCharCount('notes', 0, 200);
+            
+            // 初始化提交按钮状态
+            updateSubmitButton();
+        });
+    </script>
+</body>
+</html> 

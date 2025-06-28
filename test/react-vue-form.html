@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>React/Vue风格表单测试</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            width: 100%;
+            max-width: 450px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            color: #2d3748;
+            font-size: 1.8rem;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: #718096;
+            font-size: 0.9rem;
+        }
+
+        .vue-component {
+            background: #f7fafc;
+            border: 2px solid #e2e8f0;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+        }
+
+        .component-label {
+            background: #4299e1;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+
+        .form-field-wrapper {
+            margin-bottom: 20px;
+        }
+
+        .field-label {
+            display: block;
+            color: #4a5568;
+            font-weight: 500;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        .input-container {
+            position: relative;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background: white;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            transform: translateY(-1px);
+        }
+
+        .submit-button {
+            width: 100%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 16px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .submit-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .submit-button:active {
+            transform: translateY(0);
+        }
+
+        .test-info {
+            background: #edf2f7;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 25px;
+            font-size: 0.85rem;
+            color: #4a5568;
+        }
+
+        .test-info h3 {
+            color: #2d3748;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        .back-link {
+            text-align: center;
+            margin-top: 25px;
+        }
+
+        .back-link a {
+            color: #667eea;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .back-link a:hover {
+            text-decoration: underline;
+        }
+
+        .validation-message {
+            font-size: 0.8rem;
+            margin-top: 5px;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .validation-message.show {
+            opacity: 1;
+        }
+
+        .validation-message.error {
+            color: #e53e3e;
+        }
+
+        .validation-message.success {
+            color: #38a169;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>⚛️ React/Vue风格表单</h1>
+            <p>测试现代前端框架的组件化表单检测</p>
+        </div>
+
+        <div class="test-info">
+            <h3>🔍 测试要点：</h3>
+            <ul style="margin-left: 20px;">
+                <li>data-testid 属性识别</li>
+                <li>data-field 属性识别</li>
+                <li>v-model 属性识别</li>
+                <li>组件化结构检测</li>
+                <li>data-action 按钮识别</li>
+            </ul>
+        </div>
+
+        <div class="vue-component" data-component="LoginForm">
+            <div class="component-label">Vue Component</div>
+            
+            <div class="form-field-wrapper" data-field="username">
+                <label class="field-label">用户名</label>
+                <div class="input-container">
+                    <input type="text" 
+                           data-testid="username-input"
+                           data-field="username"
+                           v-model="loginForm.username"
+                           placeholder="请输入用户名或邮箱"
+                           class="form-input"
+                           @input="validateUsername">
+                    <div class="validation-message" id="username-validation">
+                        请输入有效的用户名
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-field-wrapper" data-field="password">
+                <label class="field-label">密码</label>
+                <div class="input-container">
+                    <input type="password" 
+                           data-testid="password-input"
+                           data-field="password"
+                           v-model="loginForm.password"
+                           placeholder="请输入登录密码"
+                           class="form-input"
+                           @input="validatePassword">
+                    <div class="validation-message" id="password-validation">
+                        密码长度至少6位
+                    </div>
+                </div>
+            </div>
+
+            <button @click="handleSubmit" 
+                    :disabled="!isFormValid"
+                    class="submit-button" 
+                    data-testid="submit-btn"
+                    data-action="login">
+                {{ isLoading ? '登录中...' : '登录' }}
+            </button>
+        </div>
+
+        <div class="back-link">
+            <a href="index.html">← 返回测试首页</a>
+        </div>
+    </div>
+
+    <script>
+        // 模拟Vue.js的响应式数据
+        const loginForm = {
+            username: '',
+            password: ''
+        };
+
+        let isLoading = false;
+        let isFormValid = false;
+
+        function validateUsername(event) {
+            const value = event.target.value;
+            loginForm.username = value;
+            
+            const validation = document.getElementById('username-validation');
+            if (value.length >= 3) {
+                validation.textContent = '✓ 用户名格式正确';
+                validation.className = 'validation-message success show';
+            } else if (value.length > 0) {
+                validation.textContent = '✗ 用户名至少3个字符';
+                validation.className = 'validation-message error show';
+            } else {
+                validation.className = 'validation-message';
+            }
+            
+            checkFormValid();
+        }
+
+        function validatePassword(event) {
+            const value = event.target.value;
+            loginForm.password = value;
+            
+            const validation = document.getElementById('password-validation');
+            if (value.length >= 6) {
+                validation.textContent = '✓ 密码强度良好';
+                validation.className = 'validation-message success show';
+            } else if (value.length > 0) {
+                validation.textContent = '✗ 密码至少6个字符';
+                validation.className = 'validation-message error show';
+            } else {
+                validation.className = 'validation-message';
+            }
+            
+            checkFormValid();
+        }
+
+        function checkFormValid() {
+            isFormValid = loginForm.username.length >= 3 && loginForm.password.length >= 6;
+            const submitBtn = document.querySelector('[data-testid="submit-btn"]');
+            submitBtn.disabled = !isFormValid;
+            submitBtn.style.opacity = isFormValid ? '1' : '0.6';
+        }
+
+        function handleSubmit() {
+            if (!isFormValid) return;
+            
+            isLoading = true;
+            const submitBtn = document.querySelector('[data-testid="submit-btn"]');
+            submitBtn.textContent = '登录中...';
+            submitBtn.disabled = true;
+            
+            // 模拟登录请求
+            setTimeout(() => {
+                alert(`登录成功！\n用户名: ${loginForm.username}\n密码: ${'*'.repeat(loginForm.password.length)}`);
+                isLoading = false;
+                submitBtn.textContent = '登录';
+                submitBtn.disabled = false;
+            }, 2000);
+        }
+
+        // 绑定事件监听器
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('🔍 React/Vue风格表单页面加载完成');
+            console.log('📊 预期检测结果:');
+            console.log('  - 应该检测到data-component="LoginForm"容器');
+            console.log('  - 应该识别data-testid="username-input"字段');
+            console.log('  - 应该识别data-testid="password-input"字段');
+            console.log('  - 应该识别data-action="login"提交按钮');
+            console.log('  - 应该识别v-model属性');
+            
+            const usernameInput = document.querySelector('[data-testid="username-input"]');
+            const passwordInput = document.querySelector('[data-testid="password-input"]');
+            
+            usernameInput.addEventListener('input', validateUsername);
+            passwordInput.addEventListener('input', validatePassword);
+        });
+    </script>
+</body>
+</html> 

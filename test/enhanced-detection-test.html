@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>增强表单检测测试</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container { max-width: 1400px; margin: 0 auto; }
+        .header { text-align: center; color: white; margin-bottom: 30px; }
+        .test-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 20px;
+        }
+        .test-card {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        }
+        .test-title { font-size: 1.2rem; color: #2d3748; margin-bottom: 15px; font-weight: 600; }
+        .input-field {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            width: 100%;
+        }
+        .custom-input {
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 12px 16px;
+            margin-bottom: 15px;
+            min-height: 45px;
+            cursor: text;
+            background: white;
+        }
+        .custom-input:empty:before {
+            content: attr(data-placeholder);
+            color: #a0aec0;
+        }
+        user-input, pass-input {
+            display: block;
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+        submit-btn {
+            display: block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: center;
+            font-weight: 500;
+            width: 100%;
+        }
+        view { display: block; }
+        custom-form { display: block; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🔍 增强表单检测测试</h1>
+            <p>测试完善后的登录表单检测规则</p>
+        </div>
+
+        <div class="test-grid">
+            <!-- 1. 现代框架表单 -->
+            <div class="test-card">
+                <div class="test-title">🔥 React/Vue风格表单</div>
+                <div data-component="LoginForm">
+                    <input type="text" 
+                           data-testid="username-input"
+                           data-field="username"
+                           v-model="loginForm.username"
+                           placeholder="请输入用户名"
+                           class="input-field">
+                    <input type="password" 
+                           data-testid="password-input"
+                           data-field="password"
+                           v-model="loginForm.password"
+                           placeholder="请输入密码"
+                           class="input-field">
+                    <button data-testid="login-submit" 
+                            data-action="login"
+                            class="btn">登录</button>
+                </div>
+            </div>
+
+            <!-- 2. 企业SSO表单 -->
+            <div class="test-card">
+                <div class="test-title">🏢 企业级SSO表单</div>
+                <form class="enterprise-form">
+                    <input type="text" 
+                           name="employee_id" 
+                           placeholder="员工工号"
+                           class="input-field">
+                    <input type="password" 
+                           name="enterprise_password" 
+                           placeholder="企业密码"
+                           class="input-field">
+                    <button type="submit" class="btn">企业登录</button>
+                </form>
+            </div>
+
+            <!-- 3. 多语言表单 -->
+            <div class="test-card">
+                <div class="test-title">🌍 多语言表单</div>
+                <form>
+                    <input type="text" 
+                           name="utilisateur" 
+                           placeholder="Nom d'utilisateur"
+                           class="input-field">
+                    <input type="password" 
+                           name="mot_de_passe" 
+                           placeholder="Mot de passe"
+                           class="input-field">
+                    <button type="submit" class="btn">Se connecter</button>
+                </form>
+            </div>
+
+            <!-- 4. 自定义组件表单 -->
+            <div class="test-card">
+                <div class="test-title">🎨 自定义组件表单</div>
+                <custom-form data-type="login">
+                    <user-input type="text" placeholder="用户标识" name="user_id"></user-input>
+                    <pass-input type="password" placeholder="访问密钥" name="access_key"></pass-input>
+                    <submit-btn onclick="customLogin()">访问系统</submit-btn>
+                </custom-form>
+            </div>
+
+            <!-- 5. ContentEditable表单 -->
+            <div class="test-card">
+                <div class="test-title">✏️ 富文本编辑器表单</div>
+                <div class="custom-input" 
+                     contenteditable="true" 
+                     data-field="username"
+                     data-placeholder="点击输入用户名"></div>
+                <div class="custom-input" 
+                     contenteditable="true" 
+                     data-field="password"
+                     data-type="password"
+                     data-placeholder="点击输入密码"></div>
+                <button class="btn">登录系统</button>
+            </div>
+
+            <!-- 6. 小程序风格 -->
+            <div class="test-card">
+                <div class="test-title">📱 小程序风格表单</div>
+                <view class="login-container">
+                    <input placeholder="微信号/QQ号/邮箱" 
+                           class="input-field"
+                           type="text">
+                    <input placeholder="密码" 
+                           class="input-field"
+                           type="password">
+                    <button class="btn">ログイン</button>
+                </view>
+            </div>
+
+            <!-- 7. 复杂嵌套表单 -->
+            <div class="test-card">
+                <div class="test-title">🎭 复杂嵌套表单</div>
+                <div class="login-section auth-form" data-component="AuthSection">
+                    <input type="text" 
+                           name="login_account" 
+                           placeholder="登录账号"
+                           class="input-field">
+                    <input type="password" 
+                           name="login_password" 
+                           placeholder="登录密码"
+                           class="input-field">
+                    <button type="button" class="btn">확인 (韩语:确认)</button>
+                </div>
+            </div>
+
+            <!-- 8. 干扰字段表单 -->
+            <div class="test-card">
+                <div class="test-title">🎯 干扰字段测试</div>
+                <form>
+                    <input type="hidden" name="csrf_token" value="abc123">
+                    <input type="text" name="search_query" placeholder="搜索..." style="display:none;">
+                    <input type="text" 
+                           name="user_login_account" 
+                           placeholder="主账号"
+                           class="input-field">
+                    <input type="text" name="captcha" placeholder="验证码" class="input-field" style="width:50%;">
+                    <input type="password" 
+                           name="user_login_password" 
+                           placeholder="主密码"
+                           class="input-field">
+                    <button type="submit" class="btn">войти</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function customLogin() {
+            console.log('自定义组件登录');
+        }
+
+        // 模拟检测结果输出
+        window.addEventListener('load', () => {
+            console.log('🔍 页面加载完成，开始表单检测测试');
+            console.log('📊 预期检测结果:');
+            console.log('  - React/Vue风格表单: ✅ 应该被检测到');
+            console.log('  - 企业SSO表单: ✅ 应该被检测到');
+            console.log('  - 多语言表单: ✅ 应该被检测到');
+            console.log('  - 自定义组件表单: ✅ 应该被检测到');
+            console.log('  - 富文本编辑器表单: ✅ 应该被检测到');
+            console.log('  - 小程序风格表单: ✅ 应该被检测到');
+            console.log('  - 复杂嵌套表单: ✅ 应该被检测到');
+            console.log('  - 干扰字段表单: ✅ 应该正确识别主要字段');
+        });
+    </script>
+</body>
+</html>

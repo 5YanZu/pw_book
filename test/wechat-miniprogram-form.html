@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>微信小程序风格表单测试</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system-font, "Helvetica Neue", sans-serif;
+            background: linear-gradient(135deg, #07c160 0%, #00d4aa 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+
+        .wechat-logo {
+            width: 60px;
+            height: 60px;
+            background: #07c160;
+            border-radius: 50%;
+            margin: 0 auto 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 30px;
+            color: white;
+        }
+
+        .header h1 {
+            color: #1f2937;
+            font-size: 1.6rem;
+            margin-bottom: 8px;
+        }
+
+        .header p {
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+
+        .test-info {
+            background: #f0f9ff;
+            border: 1px solid #bae6fd;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 25px;
+            font-size: 0.85rem;
+            color: #0c4a6e;
+        }
+
+        .test-info h3 {
+            color: #0369a1;
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        /* 微信小程序样式 */
+        .miniprogram-container {
+            background: #f7f7f7;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .mp-title {
+            background: #07c160;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            display: inline-block;
+            margin-bottom: 20px;
+        }
+
+        /* 小程序组件样式 */
+        view {
+            display: block;
+        }
+
+        .login-container {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .form-item {
+            margin-bottom: 16px;
+        }
+
+        .weui-label {
+            display: block;
+            color: #353535;
+            font-size: 14px;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .weui-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #d9d9d9;
+            border-radius: 6px;
+            font-size: 16px;
+            background: #fff;
+            transition: all 0.3s ease;
+        }
+
+        .weui-input:focus {
+            border-color: #07c160;
+            box-shadow: 0 0 0 2px rgba(7, 193, 96, 0.1);
+            outline: none;
+        }
+
+        .weui-input::placeholder {
+            color: #b2b2b2;
+        }
+
+        .weui-btn {
+            width: 100%;
+            padding: 12px 16px;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 10px;
+        }
+
+        .weui-btn_primary {
+            background: #07c160;
+            color: white;
+        }
+
+        .weui-btn_primary:hover {
+            background: #06ad56;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(7, 193, 96, 0.3);
+        }
+
+        .weui-btn_primary:active {
+            transform: translateY(0);
+        }
+
+        .weui-btn:disabled {
+            background: #f2f2f2;
+            color: #c9c9c9;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .weui-cells {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 16px;
+        }
+
+        .weui-cell {
+            padding: 12px 16px;
+            border-bottom: 1px solid #f0f0f0;
+            display: flex;
+            align-items: center;
+        }
+
+        .weui-cell:last-child {
+            border-bottom: none;
+        }
+
+        .weui-cell__hd {
+            flex: 0 0 auto;
+            margin-right: 12px;
+            color: #353535;
+            font-size: 14px;
+        }
+
+        .weui-cell__bd {
+            flex: 1;
+        }
+
+        .weui-cell__ft {
+            flex: 0 0 auto;
+            color: #b2b2b2;
+            font-size: 12px;
+        }
+
+        .avatar-wrapper {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .user-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: #f0f0f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            color: #b2b2b2;
+        }
+
+        .login-tips {
+            background: #fff7ed;
+            border: 1px solid #fed7aa;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 16px;
+            font-size: 0.8rem;
+            color: #c2410c;
+        }
+
+        .back-link {
+            text-align: center;
+            margin-top: 25px;
+        }
+
+        .back-link a {
+            color: #07c160;
+            text-decoration: none;
+            font-size: 0.9rem;
+        }
+
+        .back-link a:hover {
+            text-decoration: underline;
+        }
+
+        .mp-features {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            border-radius: 8px;
+            padding: 12px;
+            margin-top: 20px;
+            font-size: 0.8rem;
+            color: #166534;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="wechat-logo">💬</div>
+            <h1>微信小程序登录</h1>
+            <p>测试小程序组件风格的表单检测</p>
+        </div>
+
+        <div class="test-info">
+            <h3>🔍 测试要点：</h3>
+            <ul style="margin-left: 20px;">
+                <li>view标签容器识别</li>
+                <li>weui-input组件识别</li>
+                <li>bindinput事件属性</li>
+                <li>bindtap事件属性</li>
+                <li>小程序特有的CSS类名</li>
+            </ul>
+        </div>
+
+        <div class="miniprogram-container">
+            <div class="mp-title">📱 小程序组件</div>
+            
+            <view class="login-container">
+                <view class="avatar-wrapper">
+                    <view class="user-avatar">👤</view>
+                </view>
+
+                <view class="login-tips">
+                    🔐 使用微信账号安全登录，保护您的隐私信息
+                </view>
+
+                <view class="weui-cells">
+                    <view class="weui-cell">
+                        <view class="weui-cell__hd">账号</view>
+                        <view class="weui-cell__bd">
+                            <input placeholder="微信号/QQ号/邮箱" 
+                                   bindinput="onUsernameInput"
+                                   class="weui-input"
+                                   type="text"
+                                   maxlength="50"
+                                   data-field="account">
+                        </view>
+                        <view class="weui-cell__ft" id="username-status">未填写</view>
+                    </view>
+
+                    <view class="weui-cell">
+                        <view class="weui-cell__hd">密码</view>
+                        <view class="weui-cell__bd">
+                            <input placeholder="登录密码" 
+                                   bindinput="onPasswordInput"
+                                   class="weui-input"
+                                   type="password"
+                                   maxlength="20"
+                                   data-field="password">
+                        </view>
+                        <view class="weui-cell__ft" id="password-status">未填写</view>
+                    </view>
+                </view>
+
+                <view class="form-item">
+                    <label class="weui-label">验证码 (可选)</label>
+                    <input placeholder="请输入验证码" 
+                           bindinput="onCaptchaInput"
+                           class="weui-input"
+                           type="text"
+                           maxlength="6"
+                           data-field="captcha">
+                </view>
+
+                <button bindtap="doLogin" 
+                        class="weui-btn weui-btn_primary"
+                        id="loginBtn"
+                        data-action="miniprogram-login">
+                    ログイン (登录)
+                </button>
+
+                <view style="margin-top: 16px; text-align: center;">
+                    <text style="color: #b2b2b2; font-size: 12px;">
+                        登录即表示同意用户协议和隐私政策
+                    </text>
+                </view>
+            </view>
+        </div>
+
+        <div class="mp-features">
+            <strong>🎯 小程序特性：</strong>
+            <ul style="margin-left: 20px; margin-top: 8px;">
+                <li>使用view标签作为容器</li>
+                <li>bindinput/bindtap事件绑定</li>
+                <li>weui样式组件库</li>
+                <li>小程序特有的CSS类名</li>
+                <li>data-field属性支持</li>
+            </ul>
+        </div>
+
+        <div class="back-link">
+            <a href="index.html">← 返回测试首页</a>
+        </div>
+    </div>
+
+    <script>
+        // 模拟小程序的数据绑定
+        const formData = {
+            account: '',
+            password: '',
+            captcha: ''
+        };
+
+        // 模拟小程序事件处理函数
+        function onUsernameInput(event) {
+            const value = event.target.value;
+            formData.account = value;
+            
+            const statusEl = document.getElementById('username-status');
+            if (value.length === 0) {
+                statusEl.textContent = '未填写';
+                statusEl.style.color = '#b2b2b2';
+            } else if (value.length < 3) {
+                statusEl.textContent = '太短';
+                statusEl.style.color = '#fa5151';
+            } else {
+                statusEl.textContent = '✓';
+                statusEl.style.color = '#07c160';
+            }
+            
+            updateLoginButton();
+        }
+
+        function onPasswordInput(event) {
+            const value = event.target.value;
+            formData.password = value;
+            
+            const statusEl = document.getElementById('password-status');
+            if (value.length === 0) {
+                statusEl.textContent = '未填写';
+                statusEl.style.color = '#b2b2b2';
+            } else if (value.length < 6) {
+                statusEl.textContent = '太短';
+                statusEl.style.color = '#fa5151';
+            } else {
+                statusEl.textContent = '✓';
+                statusEl.style.color = '#07c160';
+            }
+            
+            updateLoginButton();
+        }
+
+        function onCaptchaInput(event) {
+            formData.captcha = event.target.value;
+        }
+
+        function updateLoginButton() {
+            const loginBtn = document.getElementById('loginBtn');
+            const isValid = formData.account.length >= 3 && formData.password.length >= 6;
+            
+            loginBtn.disabled = !isValid;
+            if (isValid) {
+                loginBtn.textContent = 'ログイン (登录)';
+                loginBtn.style.background = '#07c160';
+            } else {
+                loginBtn.textContent = '请完善信息';
+                loginBtn.style.background = '#f2f2f2';
+                loginBtn.style.color = '#c9c9c9';
+            }
+        }
+
+        function doLogin() {
+            if (!formData.account || !formData.password) {
+                wx.showToast({
+                    title: '请填写完整信息',
+                    icon: 'none'
+                });
+                // 在浏览器中模拟
+                alert('请填写完整信息');
+                return;
+            }
+            
+            if (formData.account.length < 3) {
+                alert('账号至少需要3个字符');
+                return;
+            }
+            
+            if (formData.password.length < 6) {
+                alert('密码至少需要6个字符');
+                return;
+            }
+            
+            console.log('小程序登录:', formData);
+            
+            // 模拟小程序登录成功
+            alert(`小程序登录成功!\n账号: ${formData.account}\n密码: ${'*'.repeat(formData.password.length)}\n验证码: ${formData.captcha || '未填写'}`);
+        }
+
+        // 模拟小程序的wx对象
+        window.wx = {
+            showToast: function(options) {
+                alert(options.title);
+            }
+        };
+
+        // 绑定事件监听器
+        document.addEventListener('DOMContentLoaded', () => {
+            console.log('🔍 微信小程序风格表单页面加载完成');
+            console.log('📊 预期检测结果:');
+            console.log('  - 应该检测到login-container容器');
+            console.log('  - 应该识别bindinput属性的input元素');
+            console.log('  - 应该识别weui-input类名');
+            console.log('  - 应该识别bindtap属性的button元素');
+            console.log('  - 应该识别view标签结构');
+            console.log('  - 应该识别data-field属性');
+            
+            // 绑定输入事件
+            const inputs = document.querySelectorAll('input');
+            inputs.forEach(input => {
+                if (input.getAttribute('bindinput') === 'onUsernameInput') {
+                    input.addEventListener('input', onUsernameInput);
+                } else if (input.getAttribute('bindinput') === 'onPasswordInput') {
+                    input.addEventListener('input', onPasswordInput);
+                } else if (input.getAttribute('bindinput') === 'onCaptchaInput') {
+                    input.addEventListener('input', onCaptchaInput);
+                }
+            });
+            
+            // 绑定按钮事件
+            const loginBtn = document.querySelector('[bindtap="doLogin"]');
+            if (loginBtn) {
+                loginBtn.addEventListener('click', doLogin);
+            }
+            
+            // 初始化按钮状态
+            updateLoginButton();
+        });
+
+        // 键盘导航支持
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                const activeElement = document.activeElement;
+                if (activeElement.tagName === 'INPUT') {
+                    const inputs = Array.from(document.querySelectorAll('input'));
+                    const currentIndex = inputs.indexOf(activeElement);
+                    
+                    if (currentIndex < inputs.length - 1) {
+                        inputs[currentIndex + 1].focus();
+                    } else {
+                        document.getElementById('loginBtn').click();
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html> 

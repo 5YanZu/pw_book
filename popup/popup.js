@@ -357,6 +357,28 @@ class PopupManager {
         
         // 模态框事件
         this.bindModalEvents();
+
+        // 手动标记按钮
+        const manualMarkBtn = document.getElementById('manualMarkBtn');
+        if (manualMarkBtn) {
+            manualMarkBtn.addEventListener('click', async () => {
+                try {
+                    // 获取当前活跃的标签页
+                    const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
+                    
+                    // 向content script发送消息触发手动标记模式
+                    await chrome.tabs.sendMessage(tab.id, {
+                        type: 'ACTIVATE_MANUAL_MARKING'
+                    });
+                    
+                    // 关闭弹窗
+                    window.close();
+                } catch (error) {
+                    console.error('激活手动标记模式失败:', error);
+                    this.showToast('激活手动标记模式失败', 'error');
+                }
+            });
+        }
     }
 
     /**
