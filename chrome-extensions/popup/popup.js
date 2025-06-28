@@ -355,8 +355,24 @@ class PopupManager {
             this.exportData();
         });
         
+        document.getElementById('syncBtn')?.addEventListener('click', () => {
+            this.showSyncSettings();
+        });
+        
+        // 设置按钮事件
+        document.getElementById('settingsBtn')?.addEventListener('click', () => {
+            this.showSyncSettings();
+        });
+        
+        document.getElementById('settingsBtn2')?.addEventListener('click', () => {
+            this.showSyncSettings();
+        });
+        
         // 模态框事件
         this.bindModalEvents();
+        
+        // 同步设置事件
+        this.bindSyncEvents();
 
         // 手动标记按钮
         const manualMarkBtn = document.getElementById('manualMarkBtn');
@@ -801,6 +817,366 @@ class PopupManager {
         const div = document.createElement('div');
         div.textContent = text;
         return div.innerHTML;
+    }
+
+    /**
+     * 显示同步设置
+     */
+    async showSyncSettings() {
+        try {
+            const settings = await simpleSyncManager.getSyncSettings();
+            
+            const modalHtml = `
+                <div class="modal-overlay" id="syncModal" style="display: block;">
+                    <div class="modal-content sync-modal">
+                        <div class="modal-header">
+                            <h3>同步设置</h3>
+                            <button class="modal-close" id="syncModalClose">&times;</button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="sync-status">
+                                <div class="status-indicator" id="syncStatusIndicator"></div>
+                                <span id="syncStatusText">未配置</span>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label for="serverUrl">服务器地址:</label>
+                                <input type="url" id="serverUrl" placeholder="https://your-sync-server.com" 
+                                       value="${settings.serverUrl || ''}">
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>
+                                    <input type="checkbox" id="autoSync" ${settings.autoSync ? 'checked' : ''}> 
+                                    自动同步
+                                </label>
+                            </div>
+                            
+                            <div class="form-group">
+                                <label>
+                                    <input type="checkbox" id="syncEnabled" ${settings.enabled ? 'checked' : ''}> 
+                                    启用同步
+                                </label>
+                            </div>
+                            
+                            <div class="key-section">
+                                <h4>加密密钥</h4>
+                                <div class="key-actions">
+                                    <button class="btn btn-secondary" id="generateKeysBtn">生成新密钥</button>
+                                    <button class="btn btn-secondary" id="importKeysBtn">导入密钥</button>
+                                    <button class="btn btn-secondary" id="exportKeysBtn">导出密钥</button>
+                                </div>
+                                
+                                <div class="key-info" id="keyInfo" style="display: ${settings.publicKey ? 'block' : 'none'};">
+                                    指纹: <span id="keyFingerprint">计算中...</span>
+                                </div>
+                            </div>
+                            
+                            <div class="sync-actions">
+                                <button class="btn btn-primary" id="saveSyncSettings">保存设置</button>
+                                <button class="btn btn-secondary" id="testConnection">测试连接</button>
+                                <button class="btn btn-secondary" id="syncNow">立即同步</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            // 添加到页面
+            document.body.insertAdjacentHTML('beforeend', modalHtml);
+            
+            // 更新密钥指纹
+            if (settings.publicKey) {
+                this.updateKeyFingerprint(settings.publicKey);
+            }
+            
+            // 更新同步状态
+            this.updateSyncStatus();
+            
+        } catch (error) {
+            console.error('显示同步设置失败:', error);
+            this.showToast('显示同步设置失败', 'error');
+        }
+    }
+
+    /**
+     * 绑定同步设置事件
+     */
+    bindSyncEvents() {
+        // 使用事件委托处理动态添加的元素
+        document.addEventListener('click', async (e) => {
+            if (e.target.id === 'syncModalClose') {
+                this.hideSyncSettings();
+            } else if (e.target.id === 'generateKeysBtn') {
+                await this.generateKeys();
+            } else if (e.target.id === 'importKeysBtn') {
+                this.importKeys();
+            } else if (e.target.id === 'exportKeysBtn') {
+                await this.exportKeys();
+            } else if (e.target.id === 'saveSyncSettings') {
+                await this.saveSyncSettings();
+            } else if (e.target.id === 'testConnection') {
+                await this.testSyncConnection();
+            } else if (e.target.id === 'syncNow') {
+                await this.syncNow();
+            }
+        });
+    }
+
+    /**
+     * 隐藏同步设置
+     */
+    hideSyncSettings() {
+        const modal = document.getElementById('syncModal');
+        if (modal) {
+            modal.remove();
+        }
+    }
+
+    /**
+     * 生成密钥
+     */
+    async generateKeys() {
+        try {
+            this.showToast('正在生成密钥...', 'info');
+            
+            const keyPair = await simpleSyncManager.generateAndSetupKeys();
+            
+            // 更新界面
+            document.getElementById('keyInfo').style.display = 'block';
+            await this.updateKeyFingerprint(keyPair.publicKey);
+            
+            this.showToast('密钥生成成功', 'success');
+            
+        } catch (error) {
+            console.error('生成密钥失败:', error);
+            this.showToast('密钥生成失败: ' + error.message, 'error');
+        }
+    }
+
+    /**
+     * 导入密钥
+     */
+    importKeys() {
+        const input = document.createElement('input');
+        input.type = 'file';
+        input.accept = '.json';
+        
+        input.onchange = async (e) => {
+            try {
+                const file = e.target.files[0];
+                const text = await file.text();
+                const keyData = JSON.parse(text);
+                
+                if (!keyData.publicKey || !keyData.privateKey) {
+                    throw new Error('密钥文件格式错误');
+                }
+                
+                const settings = await simpleSyncManager.getSyncSettings();
+                settings.publicKey = keyData.publicKey;
+                settings.privateKey = keyData.privateKey;
+                await simpleSyncManager.saveSyncSettings(settings);
+                
+                await simpleSyncManager.cryptoManager.importKeys(
+                    keyData.publicKey, 
+                    keyData.privateKey
+                );
+                
+                // 更新界面
+                document.getElementById('keyInfo').style.display = 'block';
+                await this.updateKeyFingerprint(keyData.publicKey);
+                
+                this.showToast('密钥导入成功', 'success');
+                
+            } catch (error) {
+                console.error('密钥导入失败:', error);
+                this.showToast('密钥导入失败: ' + error.message, 'error');
+            }
+        };
+        
+        input.click();
+    }
+
+    /**
+     * 导出密钥
+     */
+    async exportKeys() {
+        try {
+            const settings = await simpleSyncManager.getSyncSettings();
+            if (!settings.publicKey || !settings.privateKey) {
+                this.showToast('请先生成密钥', 'warning');
+                return;
+            }
+            
+            const keyData = {
+                publicKey: settings.publicKey,
+                privateKey: settings.privateKey,
+                exportTime: new Date().toISOString()
+            };
+            
+            const blob = new Blob([JSON.stringify(keyData, null, 2)], {
+                type: 'application/json'
+            });
+            
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `sync-keys-${Date.now()}.json`;
+            a.click();
+            
+            URL.revokeObjectURL(url);
+            this.showToast('密钥已导出', 'success');
+            
+        } catch (error) {
+            console.error('密钥导出失败:', error);
+            this.showToast('密钥导出失败: ' + error.message, 'error');
+        }
+    }
+
+    /**
+     * 保存同步设置
+     */
+    async saveSyncSettings() {
+        try {
+            const serverUrl = document.getElementById('serverUrl').value.trim();
+            const autoSync = document.getElementById('autoSync').checked;
+            const enabled = document.getElementById('syncEnabled').checked;
+            
+            if (enabled && !serverUrl) {
+                this.showToast('请输入服务器地址', 'warning');
+                return;
+            }
+            
+            const settings = await simpleSyncManager.getSyncSettings();
+            settings.serverUrl = serverUrl;
+            settings.autoSync = autoSync;
+            settings.enabled = enabled;
+            settings.syncInterval = 300000; // 5分钟
+            
+            await simpleSyncManager.saveSyncSettings(settings);
+            
+            // 重新初始化同步管理器
+            if (enabled) {
+                await simpleSyncManager.init();
+            } else {
+                simpleSyncManager.stopPeriodicSync();
+            }
+            
+            this.updateSyncStatus();
+            this.showToast('设置保存成功', 'success');
+            
+        } catch (error) {
+            console.error('保存设置失败:', error);
+            this.showToast('保存设置失败: ' + error.message, 'error');
+        }
+    }
+
+    /**
+     * 测试连接
+     */
+    async testSyncConnection() {
+        try {
+            const serverUrl = document.getElementById('serverUrl').value.trim();
+            if (!serverUrl) {
+                this.showToast('请输入服务器地址', 'warning');
+                return;
+            }
+            
+            this.showToast('正在测试连接...', 'info');
+            
+            // 临时更新服务器地址进行测试
+            const oldUrl = simpleSyncManager.serverUrl;
+            simpleSyncManager.serverUrl = serverUrl;
+            
+            const result = await simpleSyncManager.testConnection();
+            
+            // 恢复原来的地址
+            simpleSyncManager.serverUrl = oldUrl;
+            
+            if (result.success) {
+                this.showToast('连接成功', 'success');
+            } else {
+                this.showToast(result.message, 'error');
+            }
+            
+        } catch (error) {
+            console.error('测试连接失败:', error);
+            this.showToast('测试连接失败: ' + error.message, 'error');
+        }
+    }
+
+    /**
+     * 立即同步
+     */
+    async syncNow() {
+        try {
+            this.showToast('正在同步...', 'info');
+            
+            await simpleSyncManager.syncAll();
+            
+            this.showToast('同步完成', 'success');
+            this.updateSyncStatus();
+            
+            // 刷新账号数据
+            await this.loadAccounts();
+            
+        } catch (error) {
+            console.error('同步失败:', error);
+            this.showToast('同步失败: ' + error.message, 'error');
+        }
+    }
+
+    /**
+     * 更新密钥指纹
+     */
+    async updateKeyFingerprint(publicKey) {
+        try {
+            const encoder = new TextEncoder();
+            const keyBuffer = encoder.encode(publicKey);
+            const hashBuffer = await crypto.subtle.digest('SHA-256', keyBuffer);
+            
+            const hashArray = Array.from(new Uint8Array(hashBuffer));
+            const fingerprint = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+            
+            const fingerprintEl = document.getElementById('keyFingerprint');
+            if (fingerprintEl) {
+                fingerprintEl.textContent = fingerprint.substring(0, 16).toUpperCase();
+            }
+            
+        } catch (error) {
+            console.error('计算密钥指纹失败:', error);
+            const fingerprintEl = document.getElementById('keyFingerprint');
+            if (fingerprintEl) {
+                fingerprintEl.textContent = '计算失败';
+            }
+        }
+    }
+
+    /**
+     * 更新同步状态
+     */
+    async updateSyncStatus() {
+        try {
+            const settings = await simpleSyncManager.getSyncSettings();
+            const indicator = document.getElementById('syncStatusIndicator');
+            const text = document.getElementById('syncStatusText');
+            
+            if (!indicator || !text) return;
+            
+            if (!settings.enabled) {
+                indicator.className = 'status-indicator status-disabled';
+                text.textContent = '已禁用';
+            } else if (!settings.serverUrl || !settings.publicKey) {
+                indicator.className = 'status-indicator status-warning';
+                text.textContent = '未配置';
+            } else {
+                indicator.className = 'status-indicator status-success';
+                text.textContent = '已启用';
+            }
+            
+        } catch (error) {
+            console.error('更新同步状态失败:', error);
+        }
     }
 }
 

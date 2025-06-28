@@ -4,7 +4,7 @@
  */
 
 // 当插件安装或启动时初始化
-chrome.runtime.onInstalled.addListener(() => {
+chrome.runtime.onInstalled.addListener(async () => {
     console.log('密码管理器插件已安装');
     
     // 初始化徽章
@@ -18,6 +18,14 @@ chrome.runtime.onInstalled.addListener(() => {
     
     // 设置键盘快捷键
     setupKeyboardShortcuts();
+    
+    // 初始化同步管理器
+    try {
+        // 注意：由于background script的限制，同步功能主要在popup中初始化
+        console.log('同步功能将在用户打开插件时初始化');
+    } catch (error) {
+        console.error('同步初始化失败:', error);
+    }
 });
 
 // 监听来自content script和popup的消息
