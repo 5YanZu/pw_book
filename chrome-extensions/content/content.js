@@ -518,6 +518,11 @@ class AutoFillWidget {
         this.isDropdownVisible = false;
         this.accounts = [];
         this.targetForm = null;
+        this.isDragging = false;
+        this.startX = 0;
+        this.startY = 0;
+        this.initialX = 0;
+        this.initialY = 0;
     }
 
     /**
@@ -533,7 +538,7 @@ class AutoFillWidget {
 
         // 创建触发按钮
         this.triggerButton = this.createTriggerButton(accounts.length);
-        this.positionTriggerButton(targetForm);
+        await this.positionTriggerButton(targetForm);
         document.body.appendChild(this.triggerButton);
 
         console.log(`🔐 自动填充按钮已显示，找到 ${accounts.length} 个账号`);
@@ -557,8 +562,16 @@ class AutoFillWidget {
         // 绑定点击事件
         button.addEventListener('click', (e) => {
             e.stopPropagation();
-            this.toggleDropdown();
+            if (!this.isDragging) {
+                this.toggleDropdown();
+            }
         });
+
+        // 绑定拖动事件
+        this.bindDragEvents(button);
+
+        // 绑定窗口大小调整事件
+        this.bindResizeEvent();
 
         // 添加样式
         this.addTriggerButtonStyles();
@@ -567,22 +580,36 @@ class AutoFillWidget {
     }
 
     /**
-     * 定位触发按钮 - 固定在右上角
+     * 定位触发按钮 - 从存储中读取位置或使用默认位置
      */
-    positionTriggerButton(targetForm) {
+    async positionTriggerButton(targetForm) {
         const button = this.triggerButton;
         
-        // 固定在右上角，避免滚动问题
+        // 从存储中读取用户设置的位置
+        const savedPosition = await this.getSavedPosition();
+        
         button.style.position = 'fixed';
-        button.style.top = '20px';
-        button.style.right = '20px';
         button.style.zIndex = '999998';
+        
+        if (savedPosition) {
+            // 使用保存的位置
+            button.style.left = savedPosition.x + 'px';
+            button.style.top = savedPosition.y + 'px';
+            button.style.right = 'auto';
+            button.style.bottom = 'auto';
+            console.log('🔐 填充按钮已恢复到用户设置位置:', savedPosition);
+        } else {
+            // 使用默认位置（右上角）
+            button.style.top = '20px';
+            button.style.right = '20px';
+            button.style.left = 'auto';
+            button.style.bottom = 'auto';
+            console.log('🔐 填充按钮已设置在默认位置（右上角）');
+        }
         
         // 添加悬浮效果
         button.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.15)';
         button.style.borderRadius = '8px';
-        
-        console.log('🔐 填充按钮已固定在右上角');
     }
 
     /**
@@ -682,28 +709,53 @@ class AutoFillWidget {
     }
 
     /**
-     * 定位下拉框 - 固定在按钮下方右上角
+     * 定位下拉框 - 智能定位在按钮附近
      */
     positionDropdown() {
         if (!this.triggerButton || !this.dropdown) return;
 
         const dropdown = this.dropdown;
+        const buttonRect = this.triggerButton.getBoundingClientRect();
+        const dropdownWidth = 280;
+        const dropdownHeight = 320;
+        const gap = 10;
         
-        // 固定在右上角，按钮下方
         dropdown.style.position = 'fixed';
-        dropdown.style.top = '65px'; // 按钮高度 + 间距
-        dropdown.style.right = '20px'; // 与按钮对齐
         dropdown.style.zIndex = '999999';
         
-        // 检查是否超出视口高度，如果超出则向上显示
+        // 计算最佳位置
+        const viewportWidth = window.innerWidth;
         const viewportHeight = window.innerHeight;
-        if (65 + 320 > viewportHeight) {
-            // 在按钮上方显示
-            dropdown.style.top = 'auto';
-            dropdown.style.bottom = (viewportHeight - 20) + 'px';
+        
+        let left = buttonRect.left;
+        let top = buttonRect.bottom + gap;
+        
+        // 检查右边界
+        if (left + dropdownWidth > viewportWidth) {
+            left = buttonRect.right - dropdownWidth;
         }
         
-        console.log('📋 下拉框已定位在右上角');
+        // 检查左边界
+        if (left < 0) {
+            left = gap;
+        }
+        
+        // 检查下边界，如果超出则在按钮上方显示
+        if (top + dropdownHeight > viewportHeight) {
+            top = buttonRect.top - dropdownHeight - gap;
+        }
+        
+        // 检查上边界
+        if (top < 0) {
+            top = gap;
+        }
+        
+        dropdown.style.left = left + 'px';
+        dropdown.style.top = top + 'px';
+        dropdown.style.right = 'auto';
+        dropdown.style.bottom = 'auto';
+        
+        console.log('📋 下拉框已智能定位:', { left, top });
     }
 
     /**
@@ -752,16 +804,25 @@ class AutoFillWidget {
                 padding: 8px 12px;
                 font-size: 12px;
                 font-weight: 600;
-                cursor: pointer;
+                cursor: move;
                 box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
                 transition: all 0.2s ease;
                 user-select: none;
                 font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+                touch-action: none;
             }
             
             .password-manager-trigger-button:hover {
                 transform: translateY(-1px);
                 box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            }
+            
+            .password-manager-trigger-button.dragging {
+                cursor: grabbing;
+                transform: scale(1.05);
+                box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+                z-index: 999999;
+                transition: none;
             }
             
             .password-manager-trigger-button.active {
@@ -772,6 +833,7 @@ class AutoFillWidget {
                 display: flex;
                 align-items: center;
                 gap: 6px;
+                pointer-events: none;
             }
             
             .pw-trigger-icon {
@@ -1072,6 +1134,10 @@ class AutoFillWidget {
 
         // 隐藏下拉框
         this.hideDropdown();
+
+        // 清理事件监听器
+        document.removeEventListener('click', this.handleOutsideClick.bind(this));
+        window.removeEventListener('resize', this.onWindowResize.bind(this));
     }
 
     /**
@@ -1101,6 +1167,188 @@ class AutoFillWidget {
                 notification.parentNode.removeChild(notification);
             }
         }, 3000);
+    }
+
+    /**
+     * 绑定拖动事件
+     */
+    bindDragEvents(button) {
+        // 鼠标事件
+        button.addEventListener('mousedown', this.onDragStart.bind(this));
+        document.addEventListener('mousemove', this.onDragMove.bind(this));
+        document.addEventListener('mouseup', this.onDragEnd.bind(this));
+
+        // 触摸事件（移动端支持）
+        button.addEventListener('touchstart', this.onDragStart.bind(this));
+        document.addEventListener('touchmove', this.onDragMove.bind(this));
+        document.addEventListener('touchend', this.onDragEnd.bind(this));
+    }
+
+    /**
+     * 绑定窗口大小调整事件
+     */
+    bindResizeEvent() {
+        window.addEventListener('resize', this.onWindowResize.bind(this));
+    }
+
+    /**
+     * 窗口大小调整处理
+     */
+    onWindowResize() {
+        if (!this.triggerButton) return;
+
+        // 获取当前按钮位置
+        const rect = this.triggerButton.getBoundingClientRect();
+        const viewportWidth = window.innerWidth;
+        const viewportHeight = window.innerHeight;
+
+        let needsReposition = false;
+        let newX = rect.left;
+        let newY = rect.top;
+
+        // 检查是否超出右边界
+        if (rect.right > viewportWidth) {
+            newX = viewportWidth - rect.width;
+            needsReposition = true;
+        }
+
+        // 检查是否超出下边界
+        if (rect.bottom > viewportHeight) {
+            newY = viewportHeight - rect.height;
+            needsReposition = true;
+        }
+
+        // 检查是否超出左边界
+        if (newX < 0) {
+            newX = 0;
+            needsReposition = true;
+        }
+
+        // 检查是否超出上边界
+        if (newY < 0) {
+            newY = 0;
+            needsReposition = true;
+        }
+
+        // 如果需要重新定位，更新按钮位置并保存
+        if (needsReposition) {
+            this.triggerButton.style.left = newX + 'px';
+            this.triggerButton.style.top = newY + 'px';
+            this.triggerButton.style.right = 'auto';
+            this.triggerButton.style.bottom = 'auto';
+            
+            // 保存新位置
+            this.savePosition({ x: newX, y: newY });
+            console.log('🔐 窗口大小调整，按钮重新定位:', { x: newX, y: newY });
+        }
+    }
+
+    /**
+     * 开始拖动
+     */
+    onDragStart(e) {
+        e.preventDefault();
+        this.isDragging = true;
+        
+        const rect = this.triggerButton.getBoundingClientRect();
+        const clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+        const clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+        
+        this.startX = clientX - rect.left;
+        this.startY = clientY - rect.top;
+        this.initialX = rect.left;
+        this.initialY = rect.top;
+        
+        // 添加拖动状态样式
+        this.triggerButton.classList.add('dragging');
+        
+        // 隐藏下拉框（如果打开的话）
+        if (this.isDropdownVisible) {
+            this.hideDropdown();
+        }
+        
+        console.log('🔐 开始拖动按钮');
+    }
+
+    /**
+     * 拖动中
+     */
+    onDragMove(e) {
+        if (!this.isDragging) return;
+        
+        e.preventDefault();
+        
+        const clientX = e.type.includes('touch') ? e.touches[0].clientX : e.clientX;
+        const clientY = e.type.includes('touch') ? e.touches[0].clientY : e.clientY;
+        
+        let newX = clientX - this.startX;
+        let newY = clientY - this.startY;
+        
+        // 确保按钮不会超出视口边界
+        const buttonRect = this.triggerButton.getBoundingClientRect();
+        const viewportWidth = window.innerWidth;
+        const viewportHeight = window.innerHeight;
+        
+        newX = Math.max(0, Math.min(newX, viewportWidth - buttonRect.width));
+        newY = Math.max(0, Math.min(newY, viewportHeight - buttonRect.height));
+        
+        // 更新按钮位置
+        this.triggerButton.style.left = newX + 'px';
+        this.triggerButton.style.top = newY + 'px';
+        this.triggerButton.style.right = 'auto';
+        this.triggerButton.style.bottom = 'auto';
+    }
+
+    /**
+     * 结束拖动
+     */
+    onDragEnd(e) {
+        if (!this.isDragging) return;
+        
+        this.isDragging = false;
+        
+        // 移除拖动状态样式
+        this.triggerButton.classList.remove('dragging');
+        
+        // 保存新位置
+        const rect = this.triggerButton.getBoundingClientRect();
+        const position = {
+            x: rect.left,
+            y: rect.top
+        };
+        this.savePosition(position);
+        
+        console.log('🔐 拖动结束，保存位置:', position);
+        
+        // 延迟一点时间重置拖动状态，避免立即触发点击事件
+        setTimeout(() => {
+            this.isDragging = false;
+        }, 10);
+    }
+
+    /**
+     * 获取保存的位置
+     */
+    async getSavedPosition() {
+        try {
+            const result = await chrome.storage.local.get(['triggerButtonPosition']);
+            return result.triggerButtonPosition || null;
+        } catch (error) {
+            console.error('获取按钮位置失败:', error);
+            return null;
+        }
+    }
+
+    /**
+     * 保存位置
+     */
+    async savePosition(position) {
+        try {
+            await chrome.storage.local.set({ triggerButtonPosition: position });
+            console.log('按钮位置已保存:', position);
+        } catch (error) {
+            console.error('保存按钮位置失败:', error);
+        }
     }
 
     /**
@@ -1721,11 +1969,137 @@ async function checkAndShowFillOptions() {
                 fillWidget.show(currentDetectedForm, accounts);
             }, 1000);
         } else {
-            console.log('ℹ️ 没有找到账号数据，不显示填充组件');
+            console.log('ℹ️ 没有找到账号数据，显示表单检测成功提示');
+            // 显示表单检测成功的绿色小勾
+            setTimeout(() => {
+                showFormDetectedIndicator();
+            }, 1000);
         }
     } catch (error) {
         console.error('检查填充选项失败:', error);
     }
+}
+
+/**
+ * 显示表单检测成功指示器
+ */
+function showFormDetectedIndicator() {
+    // 清除之前的指示器
+    const existingIndicator = document.getElementById('password-manager-form-detected-indicator');
+    if (existingIndicator) {
+        existingIndicator.remove();
+    }
+
+    // 创建绿色小勾指示器
+    const indicator = document.createElement('div');
+    indicator.id = 'password-manager-form-detected-indicator';
+    indicator.className = 'password-manager-form-detected-indicator';
+    indicator.innerHTML = `
+        <div class="form-detected-content">
+            <span class="form-detected-icon">✓</span>
+            <span class="form-detected-text">表单已检测</span>
+        </div>
+    `;
+
+    // 添加样式
+    addFormDetectedIndicatorStyles();
+
+    // 添加到页面
+    document.body.appendChild(indicator);
+
+    // 添加点击事件（点击后消失）
+    indicator.addEventListener('click', () => {
+        hideFormDetectedIndicator();
+    });
+
+    // 3秒后自动消失
+    setTimeout(() => {
+        hideFormDetectedIndicator();
+    }, 3000);
+
+    console.log('✅ 显示表单检测成功指示器');
+}
+
+/**
+ * 隐藏表单检测成功指示器
+ */
+function hideFormDetectedIndicator() {
+    const indicator = document.getElementById('password-manager-form-detected-indicator');
+    if (indicator) {
+        indicator.classList.add('hiding');
+        setTimeout(() => {
+            indicator.remove();
+        }, 300);
+    }
+}
+
+/**
+ * 添加表单检测指示器样式
+ */
+function addFormDetectedIndicatorStyles() {
+    if (document.getElementById('pw-form-detected-styles')) return;
+
+    const style = document.createElement('style');
+    style.id = 'pw-form-detected-styles';
+    style.textContent = `
+        .password-manager-form-detected-indicator {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 999997;
+            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
+            color: white;
+            border-radius: 8px;
+            padding: 8px 12px;
+            box-shadow: 0 4px 12px rgba(72, 187, 120, 0.3);
+            cursor: pointer;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            font-size: 12px;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            animation: slideInFromRight 0.4s ease;
+            user-select: none;
+        }
+
+        .password-manager-form-detected-indicator:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(72, 187, 120, 0.4);
+        }
+
+        .password-manager-form-detected-indicator.hiding {
+            opacity: 0;
+            transform: translateX(100px);
+            transition: all 0.3s ease;
+        }
+
+        .form-detected-content {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .form-detected-icon {
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .form-detected-text {
+            font-size: 11px;
+            white-space: nowrap;
+        }
+
+        @keyframes slideInFromRight {
+            from {
+                opacity: 0;
+                transform: translateX(100px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+    `;
+    document.head.appendChild(style);
 }
 
 /**
