@@ -11,7 +11,17 @@ let isInitialized = false;
 let isDetecting = false;
 let lastDetectionTime = 0;
 let detectionTimeoutId = null;
-let observedMutations = new Set();
+// 全局工具函数
+function isElementVisible(element) {
+    if (!element) return false;
+    const style = window.getComputedStyle(element);
+    const rect = element.getBoundingClientRect();
+    return style.display !== 'none' && 
+           style.visibility !== 'hidden' && 
+           style.opacity !== '0' &&
+           rect.width > 0 && 
+           rect.height > 0;
+}
 
 // 监听来自popup的消息
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
@@ -26,287 +36,49 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
     return true; // 保持消息通道开放
 });
 
-// 增强版表单选择器 - 完善版
+// 精简的表单选择器配置
 const ENHANCED_FORM_SELECTORS = {
     username: {
         high: [
-            // 标准属性
-            'input[type="text"][name*="user"]',
-            'input[type="text"][name*="account"]',
-            'input[type="email"][name*="email"]',
-            'input[type="text"][id*="user"]',
-            'input[type="text"][id*="account"]',
-            'input[type="text"][autocomplete="username"]',
-            'input[name="username"]',
-            'input[name="account"]',
-            'input[id="username"]',
-            'input[id="account"]',
-            
-            // 企业级字段
-            'input[name*="employee"]',
-            'input[name*="工号"]',
-            'input[id*="employee"]',
-            'input[name*="login"]',
-            'input[id*="login"]',
-            'input[name*="admin"]',
-            'input[id*="admin"]',
-            'input[name*="manager"]',
-            'input[id*="manager"]',
-            
-            // 现代框架支持
-            'input[data-testid*="username"]',
-            'input[data-testid*="user"]',
-            'input[data-testid*="email"]',
-            'input[data-field="username"]',
-            'input[data-field="user"]',
-            'input[data-field="email"]',
-            'input[data-field="account"]',
-            
-            // 自定义元素和混合组件支持
-            '[role="textbox"][data-field="username"]',
-            '[role="textbox"][data-field="user"]',
-            '[role="textbox"][data-field="email"]',
-            '[role="textbox"][data-field="account"]',
-            '[contenteditable="true"][data-field="username"]',
-            '[contenteditable="true"][data-field="user"]',
-            '[contenteditable="true"][data-field="email"]',
-            '[contenteditable="true"][data-field="account"]',
-            'user-input',
-            'username-input',
-            'account-input',
-            
-            // 多语言支持
-            'input[name*="utilisateur"]', // 法语
-            'input[name*="usuario"]',     // 西班牙语
-            'input[name*="utente"]',      // 意大利语
-            'input[placeholder*="ユーザー"]' // 日语
+            'input[type="email"]', 'input[autocomplete="username"]',
+            'input[name*="user"]', 'input[id*="user"]', 'input[name*="account"]', 'input[id*="account"]',
+            'input[name*="login"]', 'input[id*="login"]', 'input[name*="employee"]', 'input[name*="工号"]',
+            'input[data-testid*="username"]', 'input[data-testid*="user"]', 'input[data-testid*="email"]',
+            'input[data-field="username"]', 'input[data-field="user"]', 'input[data-field="email"]',
+            '[role="textbox"][data-field*="user"]', '[contenteditable="true"][data-field*="user"]',
+            'user-input', 'username-input', 'account-input'
         ],
         medium: [
-            // 中文placeholder
-            'input[placeholder*="用户名"]',
-            'input[placeholder*="账号"]', 
-            'input[placeholder*="手机号"]',
-            'input[placeholder*="邮箱"]',
-            'input[placeholder*="工号"]',
-            'input[placeholder*="员工号"]',
-            
-            // 英文placeholder
-            'input[placeholder*="username"]',
-            'input[placeholder*="account"]',
-            'input[placeholder*="email"]',
-            'input[placeholder*="phone"]',
-            'input[placeholder*="mobile"]',
-            'input[placeholder*="employee"]',
-            'input[placeholder*="login"]',
-            
-            // CSS类名
-            'input[class*="username"]',
-            'input[class*="user-input"]',
-            'input[class*="email-input"]',
-            'input[class*="account-input"]',
-            'input[class*="login-input"]',
-            
-            // 百度特有类名和属性
-            'input[class*="pass-text-input-userName"]',
-            'input[class*="userName"]',
-            'input[name="userName"]',
-            'input[id*="userName"]',
-            
-            // 百度特有类名
-            'input[class*="pass-text-input-userName"]',
-            'input[class*="userName"]',
-            'input[name="userName"]',
-            
-            // Vue/React属性
-            'input[v-model*="user"]',
-            'input[v-model*="email"]',
-            'input[v-model*="account"]',
-            
-            // 自定义元素支持
-            '[role="textbox"][data-placeholder*="用户"]',
-            '[role="textbox"][data-placeholder*="账号"]',
-            '[role="textbox"][data-placeholder*="邮箱"]',
-            '[role="textbox"][data-placeholder*="user"]',
-            '[role="textbox"][data-placeholder*="account"]',
-            '[role="textbox"][data-placeholder*="email"]',
-            '[contenteditable="true"][data-placeholder*="用户"]',
-            '[contenteditable="true"][data-placeholder*="账号"]',
-            '[contenteditable="true"][data-placeholder*="user"]',
-            '[contenteditable="true"][data-placeholder*="account"]',
-            
-            // 多语言placeholder
-            'input[placeholder*="nom d\'utilisateur"]', // 法语
-            'input[placeholder*="nombre de usuario"]',  // 西班牙语
-            'input[placeholder*="nome utente"]',        // 意大利语
-            'input[placeholder*="benutzername"]',       // 德语
-            
-            // 自定义元素支持
-            '[role="textbox"][data-placeholder*="用户"]',
-            '[role="textbox"][data-placeholder*="账号"]',
-            '[role="textbox"][data-placeholder*="邮箱"]',
-            '[role="textbox"][data-placeholder*="user"]',
-            '[role="textbox"][data-placeholder*="account"]',
-            '[role="textbox"][data-placeholder*="email"]',
-            '[contenteditable="true"][data-placeholder*="用户"]',
-            '[contenteditable="true"][data-placeholder*="账号"]',
-            '[contenteditable="true"][data-placeholder*="user"]',
-            '[contenteditable="true"][data-placeholder*="account"]'
+            'input[placeholder*="用户名"]', 'input[placeholder*="账号"]', 'input[placeholder*="邮箱"]',
+            'input[placeholder*="username"]', 'input[placeholder*="account"]', 'input[placeholder*="email"]',
+            'input[class*="username"]', 'input[class*="user-input"]', 'input[class*="email-input"]',
+            'input[class*="pass-text-input-userName"]', 'input[name="userName"]', 'input[id*="userName"]',
+            '[role="textbox"][data-placeholder*="用户"]', '[contenteditable="true"][data-placeholder*="用户"]'
         ],
-        low: [
-            'input[type="text"]',
-            'input[type="email"]',
-            'input[type="tel"]',
-            'input:not([type])',
-            
-            // 自定义组件
-            '[contenteditable="true"]',
-            'div[data-field="username"]',
-            'div[data-field="user"]',
-            'div[data-field="account"]',
-            'div[data-field="email"]',
-            '[role="textbox"]',
-            'div[data-role="input"]',
-            'user-input',
-            'username-input',
-            'account-input'
-        ]
+        low: ['input[type="text"]', 'input[type="tel"]', 'input:not([type])', '[contenteditable="true"]', '[role="textbox"]']
     },
     password: {
         high: [
-            'input[type="password"]',
-            'input[autocomplete="current-password"]',
-            'input[autocomplete="new-password"]',
-            'input[name*="pass"]',
-            'input[id*="pass"]',
-            'input[name*="admin"]',
-            'input[id*="admin"]',
-            
-            // 多语言支持
-            'input[name*="mot_de_passe"]',  // 法语
-            'input[name*="contraseña"]',    // 西班牙语
-            'input[name*="password"]',      // 英语
-            'input[name*="senha"]',         // 葡萄牙语
-            
-            // 现代框架
-            'input[data-testid*="password"]',
-            'input[data-field="password"]',
-            'input[data-field*="pass"]',
-            
-            // 自定义元素支持
-            '[role="textbox"][data-field="password"]',
-            '[role="textbox"][data-field*="pass"]',
-            '[role="textbox"][data-type="password"]',
-            '[contenteditable="true"][data-field="password"]',
-            '[contenteditable="true"][data-type="password"]',
-            'pass-input',
-            'password-input'
+            'input[type="password"]', 'input[autocomplete*="password"]',
+            'input[name*="pass"]', 'input[id*="pass"]', 'input[data-testid*="password"]',
+            'input[data-field*="pass"]', '[role="textbox"][data-field*="pass"]',
+            '[contenteditable="true"][data-field*="pass"]', 'pass-input', 'password-input'
         ],
         medium: [
-            // 中文
-            'input[placeholder*="密码"]',
-            'input[placeholder*="口令"]',
-            
-            // 英文
-            'input[placeholder*="password"]',
-            'input[placeholder*="pwd"]',
-            'input[placeholder*="pass"]',
-            
-            // CSS类名
-            'input[class*="password"]',
-            'input[class*="pwd"]',
-            'input[class*="pass-input"]',
-            
-            // 百度特有类名
-            'input[class*="pass-text-input-password"]',
-            
-            // Vue/React
-            'input[v-model*="password"]',
-            'input[v-model*="pass"]',
-            
-            // 多语言
-            'input[placeholder*="mot de passe"]',   // 法语
-            'input[placeholder*="contraseña"]',     // 西班牙语
-            'input[placeholder*="passwort"]',       // 德语
-            'input[placeholder*="パスワード"]',       // 日语
-            
-            // 自定义元素支持
-            '[role="textbox"][data-placeholder*="密码"]',
-            '[role="textbox"][data-placeholder*="password"]',
-            '[role="textbox"][data-placeholder*="pass"]',
-            '[contenteditable="true"][data-placeholder*="密码"]',
-            '[contenteditable="true"][data-placeholder*="password"]'
+            'input[placeholder*="密码"]', 'input[placeholder*="password"]', 'input[placeholder*="pwd"]',
+            'input[class*="password"]', 'input[class*="pwd"]', 'input[class*="pass-text-input-password"]',
+            '[role="textbox"][data-placeholder*="密码"]', '[contenteditable="true"][data-placeholder*="密码"]'
         ],
-        low: [
-            // 自定义组件
-            'div[data-field="password"]',
-            'div[data-type="password"]',
-            '[role="textbox"][data-field="password"]',
-            '[role="textbox"][data-type="password"]',
-            '[contenteditable="true"][data-type="password"]',
-            'pass-input',
-            'password-input'
-        ]
+        low: ['div[data-field="password"]', '[role="textbox"][data-type="password"]']
     },
     submit: {
         high: [
-            'button[type="submit"]',
-            'input[type="submit"]',
-            'button[class*="login"]',
-            'button[class*="signin"]',
-            'input[class*="login"]',
-            
-            // 现代框架
-            'button[data-testid*="submit"]',
-            'button[data-testid*="login"]',
-            'button[data-action="login"]',
-            'button[data-action="submit"]',
-            'button[data-action*="login"]',
-            'button[data-action*="complex"]',
-            'button[data-action*="hybrid"]',
-            'button[data-action*="editable"]',
-            'button[data-action*="custom"]',
-            
-            // 百度特有提交按钮
-            'input[class*="pass-button-submit"]',
-            'button[class*="pass-button"]',
-            'input[id*="submit"]',
-            'input[class*="pass-button"]',
-            'button[id*="submit"]',
-            '.pass-button-submit',
-            '#TANGRAM__PSP_11__submit',
-            
-            // 自定义提交元素
-            'submit-btn',
-            'login-btn',
-            '[data-action*="login"]',
-            '[data-action*="submit"]',
-            
-            // 多语言按钮文本 (通过CSS属性选择器无法直接匹配文本内容，在后续逻辑中处理)
+            'button[type="submit"]', 'input[type="submit"]', 'button[class*="login"]', 'input[class*="login"]',
+            'button[data-testid*="submit"]', 'button[data-testid*="login"]', 'button[data-action*="login"]',
+            'button[id*="submit"]', 'submit-btn', 'login-btn', '[data-action*="login"]'
         ],
-        medium: [
-            'button',
-            'a[class*="login"]',
-            'div[class*="login"][role="button"]',
-            'input[type="button"]',
-            
-            // 自定义组件
-            'div[onclick]',
-            '[data-role="button"]',
-            '[role="button"]',
-            'submit-btn',
-            'login-btn',
-            
-            // Vue/React事件绑定
-            'button[onclick]',
-            'div[onclick*="login"]',
-            // Vue事件绑定在实际DOM中会被编译，这里不需要特殊处理
-        ],
-        low: [
-            // 任何可能的按钮元素
-            'div[class*="btn"]',
-            'span[class*="button"]',
-            'a[href="#"]'
-        ]
+        medium: ['button', 'input[type="button"]', 'div[onclick]', '[data-role="button"]', '[role="button"]'],
+        low: ['div[class*="btn"]', 'span[class*="button"]', 'a[href="#"]']
     }
 };
 
@@ -318,23 +90,15 @@ class SimpleFormDetector {
      * 检测基础登录表单
      */
     detectLoginForm() {
-        console.log('🔍 开始基础表单检测...');
+
         
         // 1. 优先检测标准form元素
         const standardForm = this.detectStandardForm();
-        if (standardForm) {
-            console.log('✅ 检测到标准表单:', standardForm);
-            return standardForm;
-        }
+        if (standardForm) return standardForm;
         
         // 2. 检测无form容器
         const formlessLogin = this.detectFormlessLogin();
-        if (formlessLogin) {
-            console.log('✅ 检测到无表单登录:', formlessLogin);
-            return formlessLogin;
-        }
-        
-        console.log('❌ 未检测到登录表单');
+        if (formlessLogin) return formlessLogin;
         return null;
     }
     
@@ -345,12 +109,12 @@ class SimpleFormDetector {
         const forms = document.querySelectorAll('form');
         
         for (const form of forms) {
-            if (!this.isElementVisible(form)) continue;
+            if (!isElementVisible(form)) continue;
             
             const username = this.findUsernameField(form);
             const password = form.querySelector('input[type="password"]');
             
-            if (username && password && this.isElementVisible(password)) {
+            if (username && password && isElementVisible(password)) {
                 const submit = this.findSubmitButton(form);
                 
                 return {
@@ -372,7 +136,7 @@ class SimpleFormDetector {
     detectFormlessLogin() {
         // 查找所有可见的密码字段
         const passwordFields = Array.from(document.querySelectorAll('input[type="password"]'))
-            .filter(field => this.isElementVisible(field));
+            .filter(field => isElementVisible(field));
         
         if (passwordFields.length === 0) return null;
         
@@ -415,7 +179,7 @@ class SimpleFormDetector {
         
         for (const selector of selectors) {
             const field = container.querySelector(selector);
-            if (field && this.isElementVisible(field) && field.type !== 'password') {
+            if (field && isElementVisible(field) && field.type !== 'password') {
                 return field;
             }
         }
@@ -448,7 +212,7 @@ class SimpleFormDetector {
         // 先在容器内查找
         for (const selector of selectors) {
             const button = container.querySelector(selector);
-            if (button && this.isElementVisible(button)) {
+            if (button && isElementVisible(button)) {
                 return button;
             }
         }
@@ -456,7 +220,7 @@ class SimpleFormDetector {
         // 如果容器内没找到，在整个页面查找
         for (const selector of selectors) {
             const button = document.querySelector(selector);
-            if (button && this.isElementVisible(button)) {
+            if (button && isElementVisible(button)) {
                 const text = button.textContent?.toLowerCase() || button.value?.toLowerCase() || '';
                 if (text.includes('登录') || text.includes('login') || text.includes('提交') || text.includes('submit')) {
                     return button;
@@ -490,23 +254,8 @@ class SimpleFormDetector {
         return document.body;
     }
     
-    /**
-     * 检查元素是否可见
-     */
-    isElementVisible(element) {
-        if (!element) return false;
-        
-        const style = window.getComputedStyle(element);
-        const rect = element.getBoundingClientRect();
-        
-        return style.display !== 'none' && 
-               style.visibility !== 'hidden' && 
-               style.opacity !== '0' &&
-               rect.width > 0 && 
-               rect.height > 0;
-    }
-
 }
+
 
 /**
  * 自动填充组件
@@ -631,8 +380,7 @@ class AutoFillWidget {
             this.hideDropdown();
         }
 
-        console.log('🔽 准备显示下拉列表，账号数据:', this.accounts);
-        console.log('🔽 账号数量:', this.accounts.length);
+
         
         this.dropdown = this.createDropdown(this.accounts);
         this.positionDropdown();
@@ -647,21 +395,19 @@ class AutoFillWidget {
             document.addEventListener('click', this.handleOutsideClick.bind(this));
         }, 10);
 
-        console.log('🔽 显示账号下拉列表完成');
+
     }
 
     /**
      * 创建账号下拉框
      */
     createDropdown(accounts) {
-        console.log('📝 创建下拉框，接收到的账号数据:', accounts);
-        console.log('📝 账号数组长度:', accounts.length);
+
         
         const dropdown = document.createElement('div');
         dropdown.className = 'password-manager-dropdown';
         
         const accountsHtml = accounts.map((account, index) => {
-            console.log(`📝 处理账号 ${index}:`, account);
             return `
                 <div class="pw-account-option" data-index="${index}">
                     <div class="pw-account-avatar">${account.username ? account.username.charAt(0).toUpperCase() : '?'}</div>
@@ -676,7 +422,7 @@ class AutoFillWidget {
             `;
         }).join('');
         
-        console.log('📝 生成的账号HTML:', accountsHtml);
+
         
         dropdown.innerHTML = `
             <div class="pw-dropdown-header">
@@ -755,7 +501,7 @@ class AutoFillWidget {
         dropdown.style.right = 'auto';
         dropdown.style.bottom = 'auto';
         
-        console.log('📋 下拉框已智能定位:', { left, top });
+
     }
 
     /**
@@ -1448,7 +1194,7 @@ class LoginListener {
         // 特殊处理：拦截页面的自定义提交函数
         this.interceptCustomSubmitFunctions(form);
         
-        // 增强监听：监听AJAX请求和百度特定事件
+        // 增强监听：监听AJAX请求和表单事件
         this.setupEnhancedListening(form);
         
         console.log('🎯 LoginListener已设置完成，监听表单:', {
@@ -1473,19 +1219,7 @@ class LoginListener {
         // 🎯 移除输入框变化监听，只在明确的提交动作时才暂存
         console.log('📝 跳过输入框变化监听，只在明确提交时暂存');
         
-        // 监听按钮点击的额外方式（直接监听百度特定的按钮）
-        const baiduSubmitButton = document.querySelector('#TANGRAM__PSP_11__submit');
-        if (baiduSubmitButton) {
-            // 🎯 只监听click事件，避免误触发
-            baiduSubmitButton.addEventListener('click', () => {
-                console.log('🎯 百度登录按钮被点击');
-                // 🎯 增加延迟，确保页面的登录逻辑先执行
-                setTimeout(() => {
-                    self.handleLoginAttempt(form, { type: 'baidu-submit-click' });
-                }, 500);
-            });
-            console.log('✅ 百度特定按钮监听已设置');
-        }
+
         
         // 🎯 移除全局按钮监听，避免误触发，依赖具体的提交按钮监听
         console.log('📝 跳过全局按钮监听，依赖具体提交按钮的点击事件');
@@ -2361,6 +2095,9 @@ function applyDomainMarking(markingConfig) {
  * 查找最近的提交按钮
  */
 function findNearestSubmitButton() {
+    console.log('🔍 全局查找提交按钮...');
+    
+    // 标准CSS选择器（移除了:contains()）
     const submitSelectors = [
         'button[type="submit"]',
         'input[type="submit"]',
@@ -2374,39 +2111,45 @@ function findNearestSubmitButton() {
         '[class*="submit"]',
         '[class*="login"]',
         '[class*="auth-btn"]',
-        'button:contains("登录")',
-        'button:contains("提交")',
-        'button:contains("login")',
         '.login-btn',
         '.submit-btn',
         '.pass-button-submit'
     ];
 
+    // 首先尝试标准选择器
     for (const selector of submitSelectors) {
-        const button = document.querySelector(selector);
-        if (button && isElementVisible(button)) {
+        try {
+            const button = document.querySelector(selector);
+            if (button && isElementVisible(button)) {
+                console.log('✅ 全局找到提交按钮（标准选择器）:', button, '选择器:', selector);
+                return button;
+            }
+        } catch (e) {
+            console.warn('全局选择器无效:', selector, e);
+        }
+    }
+
+    // 然后通过文本内容查找按钮
+    const textMatches = ['登录', '提交', 'login', 'Login', 'submit', 'Submit', '确定', '确认'];
+    const allButtons = document.querySelectorAll('button, input[type="button"], [role="button"], div[onclick], span[onclick]');
+    
+    for (const button of allButtons) {
+        if (!isElementVisible(button)) continue;
+        
+        const buttonText = (button.textContent || button.value || button.innerText || '').trim().toLowerCase();
+        const isMatch = textMatches.some(match => buttonText.includes(match.toLowerCase()));
+        
+        if (isMatch) {
+            console.log('✅ 全局找到提交按钮（文本匹配）:', button, '文本:', buttonText);
             return button;
         }
     }
 
+    console.log('❌ 全局未找到合适的提交按钮');
     return null;
 }
 
-/**
- * 检查元素是否可见
- */
-function isElementVisible(element) {
-    if (!element) return false;
-    
-    const style = window.getComputedStyle(element);
-    const rect = element.getBoundingClientRect();
-    
-    return style.display !== 'none' && 
-           style.visibility !== 'hidden' && 
-           style.opacity !== '0' &&
-           rect.width > 0 && 
-           rect.height > 0;
-}
+
 
 /**
  * 添加手动标记触发器
@@ -2490,7 +2233,7 @@ class ManualMarkingMode {
                         <span class="password-status">未选择</span>
                     </span>
                     <span class="status-item">
-                        <span class="status-label">登录按钮:</span>
+                        <span class="status-label">登录按钮（可选）:</span>
                         <span class="submit-status">未选择</span>
                     </span>
                 </div>
@@ -2500,8 +2243,8 @@ class ManualMarkingMode {
                     <button class="action-btn close-marking" title="关闭">✕</button>
                 </div>
             </div>
-            <div class="marking-instructions">
-                📌 点击页面元素进行标记 | 🔵 蓝框=用户名 🔴 红框=密码 🟢 绿框=登录按钮
+                            <div class="marking-instructions">
+                📌 点击页面元素进行标记 | 🔵 蓝框=用户名 🔴 红框=密码 🟢 绿框=登录按钮（可选）
             </div>
         `;
 
@@ -2584,7 +2327,7 @@ class ManualMarkingMode {
         const inputs = document.querySelectorAll('input[type="text"], input[type="email"], input[type="tel"], input[type="password"], input:not([type]), [contenteditable="true"], [role="textbox"]');
         
         inputs.forEach(input => {
-            if (this.isElementVisible(input) && !this.isMarkingUIElement(input)) {
+            if (isElementVisible(input) && !this.isMarkingUIElement(input)) {
                 input.classList.add('marking-highlight');
                 this.highlightedElements.push(input);
             }
@@ -2616,93 +2359,30 @@ class ManualMarkingMode {
         
         const buttons = document.querySelectorAll(buttonSelectors.join(', '));
         
-        console.log(`🔍 使用扩展选择器发现 ${buttons.length} 个潜在按钮元素`);
-        
         // 去重处理，因为扩展选择器可能选中重复元素
         const uniqueButtons = Array.from(new Set(buttons));
-        console.log(`🔍 去重后剩余 ${uniqueButtons.length} 个唯一按钮元素`);
         
         uniqueButtons.forEach((button, index) => {
-            const isVisible = this.isElementVisible(button);
+            const isVisible = isElementVisible(button);
             const isUIElement = this.isMarkingUIElement(button);
             const isDisabled = button.disabled;
             const isButtonType = this.isButtonElement(button);
             
-            console.log(`按钮 ${index + 1}:`, {
-                element: button,
-                tagName: button.tagName,
-                type: button.type,
-                className: button.className,
-                id: button.id,
-                value: button.value,
-                textContent: button.textContent?.trim(),
-                onclick: button.hasAttribute('onclick') ? button.getAttribute('onclick').substring(0, 50) + '...' : null,
-                dataAction: button.getAttribute('data-action'),
-                disabled: isDisabled,
-                visible: isVisible,
-                isUIElement: isUIElement,
-                isButtonType: isButtonType
-            });
+
             
             // 对于手动标记，我们允许标记禁用的按钮（只要它们是可见的且被识别为按钮）
             if (isVisible && !isUIElement && isButtonType) {
                 button.classList.add('marking-highlight');
                 this.highlightedElements.push(button);
-                console.log(`✅ 已高亮按钮:`, button);
-            } else {
-                console.log(`❌ 跳过元素:`, {
-                    visible: isVisible,
-                    isUIElement: isUIElement,
-                    isButtonType: isButtonType
-                });
             }
         });
         
-        console.log(`🎯 总共高亮了 ${this.highlightedElements.length} 个元素`);
+
         
-        // 特别检查百度登录按钮
-        this.debugBaiduSubmitButton();
+
     }
 
-    /**
-     * 调试百度提交按钮
-     */
-    debugBaiduSubmitButton() {
-        const baiduSubmitButtons = document.querySelectorAll('input[class*="pass-button-submit"], input[id*="submit"], [class*="pass-button"]');
-        
-        console.log(`🔍 发现 ${baiduSubmitButtons.length} 个疑似百度提交按钮:`);
-        
-        baiduSubmitButtons.forEach((button, index) => {
-            const isVisible = this.isElementVisible(button);
-            const isUIElement = this.isMarkingUIElement(button);
-            const isHighlighted = this.highlightedElements.includes(button);
-            
-            console.log(`百度按钮 ${index + 1}:`, {
-                element: button,
-                id: button.id,
-                className: button.className,
-                value: button.value,
-                disabled: button.disabled,
-                type: button.type,
-                visible: isVisible,
-                isUIElement: isUIElement,
-                isHighlighted: isHighlighted,
-                boundingRect: button.getBoundingClientRect(),
-                computedStyle: {
-                    display: getComputedStyle(button).display,
-                    visibility: getComputedStyle(button).visibility,
-                    opacity: getComputedStyle(button).opacity
-                }
-            });
-            
-            // 如果按钮没有被高亮，手动尝试高亮它
-            if (!isHighlighted && isVisible && !isUIElement) {
-                console.log(`🔧 手动高亮百度按钮:`, button);
-                button.classList.add('marking-highlight');
-                this.highlightedElements.push(button);
-            }
-        });
-    }
+
 
     /**
      * 添加事件监听器
@@ -2882,8 +2562,8 @@ class ManualMarkingMode {
      * 保存标记
      */
     async saveMarking() {
-        if (!this.markedFields.username && !this.markedFields.password && !this.markedFields.submit) {
-            alert('请至少标记一个元素！');
+        if (!this.markedFields.username && !this.markedFields.password) {
+            alert('请至少标记用户名或密码字段！');
             return;
         }
 
@@ -2897,8 +2577,18 @@ class ManualMarkingMode {
                 timestamp: Date.now()
             };
 
+            console.log('🔧 准备保存域名标记:', {
+                domain: domain,
+                config: markingConfig,
+                usernameElement: this.markedFields.username,
+                passwordElement: this.markedFields.password,
+                submitElement: this.markedFields.submit
+            });
+
             // 保存到本地存储
             await storageManager.saveDomainMarking(domain, markingConfig);
+            
+            console.log('✅ 域名标记保存成功');
 
             // 立即应用标记
             this.applyMarking();
@@ -2907,8 +2597,30 @@ class ManualMarkingMode {
             this.deactivate();
             
         } catch (error) {
-            console.error('保存标记失败:', error);
-            this.showNotification('❌ 保存失败，请重试', 'error');
+            console.error('保存标记失败 - 详细错误信息:', {
+                error: error,
+                message: error.message,
+                name: error.name,
+                stack: error.stack,
+                domain: window.location.hostname,
+                markedFields: {
+                    username: !!this.markedFields.username,
+                    password: !!this.markedFields.password,
+                    submit: !!this.markedFields.submit
+                }
+            });
+            
+            // 提供更详细的错误信息
+            let errorMessage = '❌ 保存失败';
+            if (error.name === 'QuotaExceededError') {
+                errorMessage += '：存储空间不足';
+            } else if (error.message) {
+                errorMessage += `：${error.message}`;
+            } else {
+                errorMessage += '，请重试';
+            }
+            
+            this.showNotification(errorMessage, 'error');
         }
     }
 
@@ -3013,23 +2725,59 @@ class ManualMarkingMode {
      * 查找最近的提交按钮
      */
     findNearestSubmitButton() {
+        console.log('🔍 开始查找提交按钮...');
+        
+        // 标准CSS选择器
         const submitSelectors = [
             'button[type="submit"]',
             'input[type="submit"]',
-            'button:contains("登录")',
-            'button:contains("提交")',
-            'button:contains("login")',
             '.login-btn',
-            '.submit-btn'
+            '.submit-btn',
+            '[data-action*="login"]',
+            '[data-action*="submit"]',
+            'button[onclick*="login"]',
+            'button[onclick*="submit"]'
         ];
 
+        // 首先尝试标准选择器
         for (const selector of submitSelectors) {
-            const button = document.querySelector(selector);
-            if (button && this.isElementVisible(button)) {
+            try {
+                const button = document.querySelector(selector);
+                if (button && isElementVisible(button)) {
+                    console.log('✅ 找到提交按钮（标准选择器）:', button, '选择器:', selector);
+                    return button;
+                }
+            } catch (e) {
+                console.warn('选择器无效:', selector, e);
+            }
+        }
+
+        // 然后通过文本内容查找按钮
+        const textMatches = ['登录', '提交', 'login', 'Login', 'submit', 'Submit', '确定', '确认'];
+        const allButtons = document.querySelectorAll('button, input[type="button"], [role="button"], div[onclick], span[onclick]');
+        
+        for (const button of allButtons) {
+            if (!isElementVisible(button)) continue;
+            
+            const buttonText = (button.textContent || button.value || button.innerText || '').trim().toLowerCase();
+            const isMatch = textMatches.some(match => buttonText.includes(match.toLowerCase()));
+            
+            if (isMatch) {
+                console.log('✅ 找到提交按钮（文本匹配）:', button, '文本:', buttonText);
                 return button;
             }
         }
 
+        // 最后查找任何可见的按钮作为备选
+        const anyButtons = document.querySelectorAll('button, input[type="button"], [role="button"]');
+        for (const button of anyButtons) {
+            if (isElementVisible(button)) {
+                console.log('⚠️ 使用备选按钮:', button);
+                return button;
+            }
+        }
+
+        console.log('❌ 未找到合适的提交按钮');
         return null;
     }
 
@@ -3037,25 +2785,79 @@ class ManualMarkingMode {
      * 获取元素选择器
      */
     getElementSelector(element) {
-        if (element.id) {
-            return `#${element.id}`;
-        }
-        
-        if (element.name) {
-            return `[name="${element.name}"]`;
-        }
-        
-        if (element.className) {
-            const classes = element.className.split(' ').filter(c => c.trim());
-            if (classes.length > 0) {
-                return `.${classes[0]}`;
+        try {
+            // 辅助函数：转义CSS选择器中的特殊字符
+            const escapeSelector = (str) => {
+                if (!str) return '';
+                // 转义CSS选择器中的特殊字符
+                return str.replace(/[!"#$%&'()*+,.\/:;<=>?@[\\\]^`{|}~]/g, '\\$&');
+            };
+            
+            // 验证选择器的辅助函数
+            const validateSelector = (selector) => {
+                try {
+                    document.querySelector(selector);
+                    return true;
+                } catch (e) {
+                    console.warn('无效选择器:', selector, e);
+                    return false;
+                }
+            };
+            
+            // 优先使用ID选择器
+            if (element.id && typeof element.id === 'string' && element.id.trim()) {
+                const idSelector = `#${escapeSelector(element.id)}`;
+                if (validateSelector(idSelector)) {
+                    console.log('✅ 使用ID选择器:', idSelector);
+                    return idSelector;
+                }
             }
+            
+            // 其次使用name属性
+            if (element.name && typeof element.name === 'string' && element.name.trim()) {
+                const nameSelector = `[name="${escapeSelector(element.name)}"]`;
+                if (validateSelector(nameSelector)) {
+                    console.log('✅ 使用name选择器:', nameSelector);
+                    return nameSelector;
+                }
+            }
+            
+            // 使用class选择器
+            if (element.className && typeof element.className === 'string') {
+                const classes = element.className.split(' ')
+                    .filter(c => c.trim())
+                    .map(c => c.trim());
+                
+                for (const className of classes) {
+                    const classSelector = `.${escapeSelector(className)}`;
+                    if (validateSelector(classSelector)) {
+                        console.log('✅ 使用class选择器:', classSelector);
+                        return classSelector;
+                    }
+                }
+            }
+            
+            // 使用位置选择器作为后备
+            if (element.parentNode && element.parentNode.children) {
+                const siblings = Array.from(element.parentNode.children);
+                const index = siblings.indexOf(element);
+                if (index >= 0) {
+                    const tagSelector = `${element.tagName.toLowerCase()}:nth-child(${index + 1})`;
+                    console.log('✅ 使用位置选择器:', tagSelector);
+                    return tagSelector;
+                }
+            }
+            
+            // 最后的备选方案：使用标签名
+            const tagName = element.tagName.toLowerCase();
+            console.log('⚠️ 使用标签选择器（可能不唯一）:', tagName);
+            return tagName;
+            
+        } catch (error) {
+            console.error('生成元素选择器时出错:', error, element);
+            // 返回一个基本的标签选择器作为最后的备选方案
+            return element.tagName ? element.tagName.toLowerCase() : 'input';
         }
-        
-        // 使用位置选择器作为后备
-        const siblings = Array.from(element.parentNode.children);
-        const index = siblings.indexOf(element);
-        return `${element.tagName.toLowerCase()}:nth-child(${index + 1})`;
     }
 
     /**
@@ -3129,39 +2931,7 @@ class ManualMarkingMode {
                element.classList.contains('field-type-menu');
     }
 
-    /**
-     * 检查元素是否可见
-     */
-    isElementVisible(element) {
-        if (!element) return false;
-        
-        const style = window.getComputedStyle(element);
-        const rect = element.getBoundingClientRect();
-        
-        const isVisible = style.display !== 'none' && 
-               style.visibility !== 'hidden' && 
-               style.opacity !== '0' &&
-               rect.width > 0 && 
-               rect.height > 0;
-        
-        // 为调试添加详细信息
-        if (!isVisible && (element.id?.includes('submit') || element.className?.includes('submit'))) {
-            console.log(`🔍 按钮可见性检查失败:`, {
-                element: element,
-                tagName: element.tagName,
-                id: element.id,
-                className: element.className,
-                display: style.display,
-                visibility: style.visibility,
-                opacity: style.opacity,
-                width: rect.width,
-                height: rect.height,
-                rect: rect
-            });
-        }
-        
-        return isVisible;
-    }
+
 
     /**
      * 显示通知

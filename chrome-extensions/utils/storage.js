@@ -922,17 +922,62 @@ class StorageManager {
      */
     async saveDomainMarking(domain, markingConfig) {
         try {
+            console.log('🔧 开始保存域名标记:', { domain, markingConfig });
+            
+            // 验证输入参数
+            if (!domain || typeof domain !== 'string') {
+                throw new Error('无效的域名参数');
+            }
+            
+            if (!markingConfig || typeof markingConfig !== 'object') {
+                throw new Error('无效的标记配置参数');
+            }
+            
+            // 验证选择器格式
+            const validateSelector = (selector, type) => {
+                if (selector && typeof selector === 'string' && selector.trim()) {
+                    // 基本选择器格式验证
+                    if (selector.length > 1000) {
+                        throw new Error(`${type}选择器过长`);
+                    }
+                    console.log(`✅ ${type}选择器验证通过:`, selector);
+                }
+            };
+            
+            validateSelector(markingConfig.username, '用户名');
+            validateSelector(markingConfig.password, '密码');
+            validateSelector(markingConfig.submit, '登录按钮');
+            
             // 获取现有的所有域名标记
+            console.log('🔧 获取现有域名标记...');
             const allMarkings = await this.getAllDomainMarkings();
+            console.log('🔧 现有标记数量:', Object.keys(allMarkings).length);
             
             // 更新指定域名的标记
             allMarkings[domain] = markingConfig;
             
+            // 检查数据大小（Chrome storage 有配额限制）
+            const dataSize = JSON.stringify(allMarkings).length;
+            console.log('🔧 数据大小:', dataSize, 'bytes');
+            
+            if (dataSize > 5 * 1024 * 1024) { // 5MB limit
+                throw new Error('存储数据过大，请清理旧的标记');
+            }
+            
             // 保存到统一的存储键
+            console.log('🔧 保存到存储...');
             await this.setStorageData('domain_marking', allMarkings);
             console.log(`✅ 域名标记已保存: ${domain}`, markingConfig);
+            
         } catch (error) {
-            console.error('保存域名标记失败:', error);
+            console.error('保存域名标记失败 - 详细信息:', {
+                error: error,
+                message: error.message,
+                name: error.name,
+                stack: error.stack,
+                domain: domain,
+                markingConfig: markingConfig
+            });
             throw error;
         }
     }
