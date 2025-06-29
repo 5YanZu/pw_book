@@ -922,8 +922,14 @@ class StorageManager {
      */
     async saveDomainMarking(domain, markingConfig) {
         try {
-            const key = `domain_marking_${domain}`;
-            await this.setStorageData(key, markingConfig);
+            // 获取现有的所有域名标记
+            const allMarkings = await this.getAllDomainMarkings();
+            
+            // 更新指定域名的标记
+            allMarkings[domain] = markingConfig;
+            
+            // 保存到统一的存储键
+            await this.setStorageData('domain_marking', allMarkings);
             console.log(`✅ 域名标记已保存: ${domain}`, markingConfig);
         } catch (error) {
             console.error('保存域名标记失败:', error);
@@ -936,9 +942,8 @@ class StorageManager {
      */
     async getDomainMarking(domain) {
         try {
-            const key = `domain_marking_${domain}`;
-            const result = await this.getStorageData(key);
-            return result || null;
+            const allMarkings = await this.getAllDomainMarkings();
+            return allMarkings[domain] || null;
         } catch (error) {
             console.error('获取域名标记失败:', error);
             return null;
@@ -950,11 +955,54 @@ class StorageManager {
      */
     async removeDomainMarking(domain) {
         try {
-            const key = `domain_marking_${domain}`;
-            await this.removeStorageData(key);
-            console.log(`✅ 域名标记已删除: ${domain}`);
+            const allMarkings = await this.getAllDomainMarkings();
+            
+            if (allMarkings[domain]) {
+                delete allMarkings[domain];
+                await this.setStorageData('domain_marking', allMarkings);
+                console.log(`✅ 域名标记已删除: ${domain}`);
+            }
         } catch (error) {
             console.error('删除域名标记失败:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * 获取所有域名标记配置
+     */
+    async getAllDomainMarkings() {
+        try {
+            const result = await this.getStorageData('domain_marking');
+            return result || {};
+        } catch (error) {
+            console.error('获取所有域名标记失败:', error);
+            return {};
+        }
+    }
+
+    /**
+     * 获取已标记的域名列表
+     */
+    async getMarkedDomains() {
+        try {
+            const allMarkings = await this.getAllDomainMarkings();
+            return Object.keys(allMarkings);
+        } catch (error) {
+            console.error('获取已标记域名列表失败:', error);
+            return [];
+        }
+    }
+
+    /**
+     * 清空所有域名标记
+     */
+    async clearAllDomainMarkings() {
+        try {
+            await this.removeStorageData('domain_marking');
+            console.log('✅ 所有域名标记已清空');
+        } catch (error) {
+            console.error('清空域名标记失败:', error);
             throw error;
         }
     }
